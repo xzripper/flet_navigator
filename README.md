@@ -1,5 +1,5 @@
 <h1 align="center">FletNavigator V1.0.0</h1>
-<i><p align="center">Simple and fast navigator (router) for Flet (Python) [<code>pip install flet_navigator</code>].</p>
+<i><p align="center">Simple and fast navigator (router) for Flet (Python) that allows you to create multi-page applications in one page! [<code>pip install flet_navigator</code>].</p>
 <p align="center">Using Example:
 
 ```python
