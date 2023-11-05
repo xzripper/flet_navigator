@@ -1,4 +1,4 @@
-<h1 align="center">FletNavigator V1.0.0</h1>
+<h1 align="center">FletNavigator V1.0.1</h1>
 <i><p align="center">Simple and fast navigator (router) for Flet (Python) that allows you to create multi-page applications in one page! [<code>pip install flet_navigator</code>].</p>
 <p align="center">Using Example:
 
@@ -81,8 +81,10 @@ app(target=main) # Run main fuction.
 
 </p>
 
+<p align="center"><img src="example.gif" width=600></p>
+
 There is no documentation, or more examples, because you can use FletNavigator just by researching this small example! Also every function, and class field has own docstring.<br>
 This example will be updated in next releases to keep everything up to date.
 
 <hr>
-<p align="center">FletNavigator v1.0.0.</p></i>
+<p align="center">FletNavigator v1.0.1.</p></i>
