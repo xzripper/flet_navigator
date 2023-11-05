@@ -5,7 +5,7 @@ from flet import Page
 from typing import Callable, Any
 
 
-FLET_NAVIGATOR_VERSION: float = '1.0.0'
+FLET_NAVIGATOR_VERSION: float = '1.0.1'
 """Flet Navigator Version."""
 
 ROUTE_404: str = 'ROUTE-404'
