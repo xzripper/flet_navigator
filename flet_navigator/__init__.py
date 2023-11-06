@@ -127,7 +127,7 @@ class FletNavigator:
 
     _nav_is_float_re: str = r'^-?\d+\.\d+$'
 
-    def __init__(self, page: Page, routes: dict[str, Callable[[Page, 'VirtualFletNavigator', tuple[Any], str], None]], route_changed_handler: Callable[[str], None]=None) -> None:
+    def __init__(self, page: Page, routes: dict[str, Callable[[Page, 'FletNavigator', tuple[Any], str], None]], route_changed_handler: Callable[[str], None]=None) -> None:
         """Initialize Virtual Flet Navigator."""
         self.page = page
 
