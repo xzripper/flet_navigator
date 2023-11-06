@@ -120,6 +120,9 @@ class FletNavigator:
     routes_data: dict[str, Any] = {}
     """Routes data (cookies-like, but global)."""
 
+    route_changed_handler: Callable[[str], None] = None
+    """On route changed handler."""
+
     _nav_previous_routes: list[str] = ['/']
 
     _nav_route_simple_re: str = r'^[a-zA-Z_]\w*$'
