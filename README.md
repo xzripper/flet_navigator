@@ -86,7 +86,7 @@ app(target=main) # Run main fuction.
 ~~There is no documentation, or more examples, because you can use FletNavigator just by researching this small example! Also every function, and class field has own docstring.<br>
 This example will be updated in next releases to keep everything up to date.~~
 
-See difference between ```VirtualFletNavigator``` and ```FletNavigator```, and more <a href="https://github.com/xzripper/flet_navigator/blob/main/flet-navigator-docs.md">here</a> (<- documentation).
+See the difference between ```VirtualFletNavigator``` and ```FletNavigator```, and more <a href="https://github.com/xzripper/flet_navigator/blob/main/flet-navigator-docs.md">here</a> (<- documentation).
 
 <hr>
 <p align="center">FletNavigator v2.0.1.</p></i>
