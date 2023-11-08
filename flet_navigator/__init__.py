@@ -277,4 +277,4 @@ class FletNavigator:
 
 def define_page(path: str, name: str=None) -> Callable[[PageData], None]:
     """Get page from module."""
-    return getattr(__import__(path), (path.split('/')[-1] if len(path.split('\\')) <= 0 else path.split('\\')[-1]) if not name else name)
+    return getattr(__import__(path.replace('\\', '.').replace('/', '.')), (path.split('/')[-1] if len(path.split('\\')) <= 0 else path.split('\\')[-1]) if not name else name)
