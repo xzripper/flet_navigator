@@ -1,4 +1,4 @@
-<h1 align="center">FletNavigator v2.0.1 Documentation.</h1>
+<h1 align="center">FletNavigator v2.1.1 Documentation.</h1>
 
 <h4 align="center">Menu:</h4>
 
@@ -6,6 +6,7 @@
 - [General.](#general)
 - [`VirtualFletNavigator`](#virtualfletnavigator)
 - [`FletNavigator`](#fletnavigator)
+- [`define_page`](#define_page)
 - [Summary.](#summary)
 
 <hr>
@@ -23,18 +24,18 @@ Installation is quite easy: ```pip install flet_navigator```
   - **✨ Fast.**
   - **✨ Cookies-like mechanism.**
   - **✨ Animations between page change. (FUTURE).**
-  - **✨ Built-in smart URL parameters parser. (Not fully implemented).**
+  - **✨ Built-in smart URL parameters parser.**
   - **✨ Multiple routing modes.**
   - **✨ And more! And even more coming in future!**
 
 **FletNavigator TODO**:
   - **Animations between page change.**
-  - **Implement URL parameters for `navigate`.**
+  - ~**Implement URL parameters for `navigate`.**~
   - **Fix bugs.**
 
 **FletNavigator Known Bugs**:
-  - **Double redirect when using `navigate` (class `FletNavigator`).**
-  - **Unable to trace previous page when manually updating URL in browser (`_nav_route_change_handler`).**
+  - ~**Double redirect when using `navigate` (class `FletNavigator`).**~
+  - **Unable to trace previous page when manually updating URL in browser (`_nav_route_change_handler`). (Seems like fixed).**
   - **Non-tested in real projects.**
 
 <hr>
@@ -71,24 +72,19 @@ Route should have latin alphabet (no cyrillic), route can have underscores and d
 
 ```flet_navigator::constructor:51: Warning: Wrong route name: "$my_route1У H". Allowed only digits and underscores.```
 
-<br>
-
-- **Page definition.**
-<img src="doc_media_1.png">
-
 <hr>
 
 <h3 align="center"><code>VirtualFletNavigator</code></h3>
 
 - `VirtualFletNavigator` - Virtual Flet Navigator Class.
   - `route: str = '/'` - Current route.
-  - `routes: dict[str, Callable[[Page, 'VirtualFletNavigator', tuple[Any], str], None]] = {}` - Registered routes.
+  - `routes: dict[str, Callable[[PageData], None]] = {}` - Registered routes.
   - `routes_data: dict[str, Any] = {}` - Routes data.
   - `route_changed_handler: Callable[[str], None] = None` - Route changed handler.<br><br>
 
   - `__init__(routes: dict[str, Callable[[Page, 'VirtualFletNavigator', tuple[Any], str], None]], route_changed_handler: Callable[[str], None]=None) -> None` - Initialize Virtual Flet Navigator.
-  - `navigate(route: str, page: Page, args: tuple[Any]=None, route_parameters: dict[str, Any]={}) -> None` - Navigate to specific route. Specify `args` to transfer arguments to other page.
-  - `render(page: Page, args: tuple[Any]=None, route_parameters: dict[str, Any]={}) -> None` - Render current route. If there is no route like that throw ROUTE-404 (if specified). Should be called only one time.
+  - `navigate(route: str, page: Page, args: tuple[Any]=None) -> None` - Navigate to specific route. Specify `args` to transfer arguments to other page.
+  - `render(page: Page, args: tuple[Any]=None) -> None` - Render current route. If there is no route like that throw ROUTE-404 (if specified). Should be called only one time.
   - `set_route_data(self, route: str, data: Any) -> int` - Set route data (cookies-like mechanism). Returns success/fail.
   - `get_route_data(self, route: str) -> Any` - Get route data.
 
@@ -97,15 +93,15 @@ Using example:
 ```python
 from flet import app, Page
 
-from flet_navigator import VirtualFletNavigator, Any, ROUTE_404
+from flet_navigator import VirtualFletNavigator, PageData, Any, ROUTE_404
 
-def main_page(page: Page, navigator: VirtualFletNavigator, args: tuple[Any], previous: str, parameters: dict[str, Any]) -> None:
+def main_page(pg: PageData) -> None:
     ... # Main page content.
 
-def second_page(page: Page, navigator: VirtualFletNavigator, args: tuple[Any], previous: str, parameters: dict[str, Any]) -> None:
+def second_page(pg: PageData) -> None:
     ... # Second page content.
 
-def route_404(page: Page, navigator: VirtualFletNavigator, args: tuple[Any], previous: str, parameters: dict[str, Any]) -> None:
+def route_404(pg: PageData) -> None:
     ... # 404 Page Content.
 
 def main(page: Page) -> None:
@@ -130,12 +126,12 @@ app(target=main)
 - `FletNavigator` - Flet Navigator Class.
   - `page: Page = None` - Page.
   - `route: str = '/'` - Current route.
-  - `routes: dict[str, Callable[[Page, 'VirtualFletNavigator', tuple[Any], str], None]] = {}` - Registered routes.
+  - `routes: dict[str, Callable[[PageData], None]] = {}` - Registered routes.
   - `routes_data: dict[str, Any] = {}` - Routes data.
   - `route_changed_handler: Callable[[str], None] = None` - Route changed handler.<br><br>
 
   - `__init__(page: Page, routes: dict[str, Callable[[Page, 'VirtualFletNavigator', tuple[Any], str], None]], route_changed_handler: Callable[[str], None]=None) -> None` - Initialize Flet Navigator.
-  - `navigate(route: str, page: Page, args: tuple[Any]=None, route_parameters: dict[str, Any]={}) -> None` - Navigate to specific route. Specify `args` to transfer arguments to other page.
+  - `navigate(route: str, page: Page, args: tuple[Any]=None) -> None` - Navigate to specific route. Specify `args` to transfer arguments to other page.
   - `render(page: Page, args: tuple[Any]=None, route_parameters: dict[str, Any]={}) -> None` - Render current route. If there is no route like that throw ROUTE-404 (if specified). Should be called only one time.
   - `set_route_data(self, route: str, data: Any) -> int` - Set route data (cookies-like mechanism). Returns success/fail.
   - `get_route_data(self, route: str) -> Any` - Get route data.
@@ -148,13 +144,13 @@ from flet import app, Page, WEB_BROWSER
 from flet_navigator import FletNavigator, Any, ROUTE_404
 
 
-def main_page(page: Page, navigator: FletNavigator, args: tuple[Any], previous: str, parameters: dict[str, Any]) -> None:
+def main_page(pg: PageData) -> None:
     ... # Main page content.
 
-def second_page(page: Page, navigator: FletNavigator, args: tuple[Any], previous: str, parameters: dict[str, Any]) -> None:
+def second_page(pg: PageData) -> None:
     ... # Second page content.
 
-def route_404(page: Page, navigator: FletNavigator, args: tuple[Any], previous: str, parameters: dict[str, Any]) -> None:
+def route_404(pg: PageData) -> None:
     ... # 404 page content.
 
 def main(page: Page) -> None:
@@ -175,11 +171,63 @@ app(target=main, view=WEB_BROWSER) # Non-Virtual Navigator recommended in web.
 
 <hr>
 
+<h3 align="center"><code>define_page</code></h3>
+
+```define_page(path: str, name: str=None) -> Callable[[PageData], None]```
+
+Used to import page from other file. Example:<br><br>
+
+`second_page.py`
+
+```python
+# from flet import 
+
+from flet_navigator import PageData
+
+
+def second_page(pg: PageData) -> None:
+    ... # Second page content.
+```
+
+<br>
+
+`main.py`
+
+```python
+from flet_navigator import FletNavigator
+
+def main(page: Page) -> None:
+    flet_navigator = FletNavigator(page,
+        {
+            '/': main_page,
+            'second_page': define_page('second_page'),
+            ROUTE_404: route_404
+        }, lambda route: print(f'Route changed!: {route}')
+    )
+
+    flet_navigator.render(page)
+
+app(target=main, view=WEB_BROWSER) # Non-Virtual Navigator recommended in web.
+```
+
+<br>
+
+If `name` is None, `path` is used as page name.
+
+```python
+define_page('second_page') # => second_page
+define_page('path\\to\\page\\second_page') # => second_page
+define_page('path/to/page/second_page') # => second_page
+define_page('second_page', 'my_second_page_name') # => my_second_page_name
+```
+
+<hr>
+
 <h3 align="center">Summary.</h3>
-Summary! Now you know difference between virtual and non-virtual navigator, how to use navigator, etc! Good luck, have fun! But remember that project isn't finished!
+Summary! Now you know difference between virtual and non-virtual navigator, how to use navigator, etc! Good luck, have fun! But remember that project isn't finished!<br><br>
 
 *Developer Note*: It would be great support for me if you'd added credits for FletNavigator! Optional!
 
 <hr>
 
-<p align="center"><b><i>FletNavigator V2.0.1</i></b></p>
+<p align="center"><b><i>FletNavigator V2.1.1</i></b></p>
