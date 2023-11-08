@@ -13,11 +13,14 @@ from importlib import import_module
 from typing import Union
 
 
-FLET_NAVIGATOR_VERSION: float = '2.1.1'
+FLET_NAVIGATOR_VERSION: float = '2.1.2'
 """Flet Navigator Version."""
 
 ROUTE_404: str = 'ROUTE-404'
 """Route 404 Typehint."""
+
+URL_FN_SPACE_CHARACTER: str = '_0ss_'
+"""FletNavigator URL Space Character."""
 
 class PageData:
     """PageData Class."""
@@ -161,7 +164,7 @@ class FletNavigator:
     _nav_temp_args: tuple[Any] = None
 
     _nav_route_simple_re: str = r'^[a-zA-Z_]\w*$'
-    _nav_route_advanced_re: str = r'^[a-zA-Z_]\w*\?\w+=\w+(?:&\w+=\w+)*$'
+    _nav_route_advanced_re: str = r'^[a-zA-Z_]\w*\?\w+=(?:[\w+]+)(?:&\w+=(?:[\w+]+))*$'
 
     _nav_is_float_re: str = r'^-?\d+\.\d+$'
 
@@ -196,7 +199,7 @@ class FletNavigator:
 
         self._nav_temp_args = args
 
-        self.route = route
+        self.route = route.replace(' ', URL_FN_SPACE_CHARACTER)
 
         page.go(self.route)
 
@@ -242,7 +245,7 @@ class FletNavigator:
             return None
 
     def _nav_route_change_handler(self, _) -> None:
-        route: str = self.page.route
+        route: str = self.page.route.replace(' ', URL_FN_SPACE_CHARACTER).replace('%20', URL_FN_SPACE_CHARACTER)
 
         if route.startswith('/') and len(route) >= 2: route = route[1:]
 
@@ -272,7 +275,7 @@ class FletNavigator:
                 if _parameter_parsed[1].isdigit(): parameters[_parameter_parsed[0]] = int(_parameter_parsed[1])
                 elif re_compile(self._nav_is_float_re).match(_parameter_parsed[1]): parameters[_parameter_parsed[0]] = float(_parameter_parsed[1])
                 elif _parameter_parsed[1] in ['true', 'false']: parameters[_parameter_parsed[0]] = bool(_parameter_parsed[1])
-                else: parameters[_parameter_parsed[0]] = _parameter_parsed[1]
+                else: parameters[_parameter_parsed[0]] = _parameter_parsed[1].replace(URL_FN_SPACE_CHARACTER, ' ')
 
                 self.route = route.split('?')[0]
 
