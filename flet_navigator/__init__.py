@@ -8,6 +8,8 @@ from warnings import warn_explicit
 
 from re import compile as re_compile
 
+from importlib import import_module
+
 from typing import Union
 
 
@@ -87,21 +89,21 @@ class VirtualFletNavigator:
         for route in self.routes:
             self.routes_data[route] = None
 
-    def navigate(self, route: str, page: Page, args: tuple[Any]=None, route_parameters: dict[str, Any]={}) -> None:
+    def navigate(self, route: str, page: Page, args: tuple[Any]=None) -> None:
         """Navigate to specific route."""
         self._nav_previous_routes.append(self.route)
 
         self.route = route
 
-        self.render(page, args, route_parameters)
+        self.render(page, args)
 
-    def render(self, page: Page, args: tuple[Any]=None, route_parameters: dict[str, Any]={}) -> None:
+    def render(self, page: Page, args: tuple[Any]=None) -> None:
         """Render current route. If there is no route like that throw ROUTE-404 (if specified)."""
         if self.route not in self.routes:
             if ROUTE_404 in self.routes:
                 page.clean()
 
-                self.routes[ROUTE_404](PageData(page, self, args, self._nav_previous_routes[-1] if len(self._nav_previous_routes) >= 1 else None, route_parameters))
+                self.routes[ROUTE_404](PageData(page, self, args, self._nav_previous_routes[-1] if len(self._nav_previous_routes) >= 1 else None, {}))
 
                 if self.route_changed_handler:
                     self.route_changed_handler(self.route)
@@ -111,7 +113,7 @@ class VirtualFletNavigator:
                 if self.route == route:
                     page.clean()
 
-                    self.routes[route](PageData(page, self, args, self._nav_previous_routes[-1] if len(self._nav_previous_routes) >= 1 else '/', route_parameters))
+                    self.routes[route](PageData(page, self, args, self._nav_previous_routes[-1] if len(self._nav_previous_routes) >= 1 else '/', {}))
 
                     page.update()
 
@@ -156,6 +158,8 @@ class FletNavigator:
 
     _nav_previous_routes: list[str] = ['/']
 
+    _nav_temp_args: tuple[Any] = None
+
     _nav_route_simple_re: str = r'^[a-zA-Z_]\w*$'
     _nav_route_advanced_re: str = r'^[a-zA-Z_]\w*\?\w+=\w+(?:&\w+=\w+)*$'
 
@@ -186,9 +190,11 @@ class FletNavigator:
 
         self.page.on_route_change = self._nav_route_change_handler
 
-    def navigate(self, route: str, page: Page, args: tuple[Any]=None, route_parameters: dict[str, Any]={}) -> None:
+    def navigate(self, route: str, page: Page, args: tuple[Any]=None) -> None:
         """Navigate to specific route."""
         self._nav_previous_routes.append(self.route)
+
+        self._nav_temp_args = args
 
         self.route = route
 
@@ -254,12 +260,12 @@ class FletNavigator:
                 if _parameter_parsed[0].startswith('?'): _parameter_parsed[0] = _parameter_parsed[0][1:]
 
                 if len(_parameter_parsed) <= 1:
-                    warn_explicit(f'Unable to parse route parameters ({_parameters_list.index(_parameter)}).', Warning, 'flet_navigator::merge_routes', 92)
+                    warn_explicit(f'Unable to parse route parameters ({_parameters_list.index(_parameter)}).', Warning, 'flet_navigator::RouteChangeHandler', 261)
 
                     continue
 
                 if _parameter_parsed[0].isdigit():
-                    warn_explicit(f'Unable to parse route parameters ({_parameters_list.index(_parameter)}): key should be string.', Warning, 'flet_navigator::merge_routes', 99)
+                    warn_explicit(f'Unable to parse route parameters ({_parameters_list.index(_parameter)}): key should be string.', Warning, 'flet_navigator::RouteChangeHandler', 266)
 
                     continue
 
@@ -273,8 +279,19 @@ class FletNavigator:
         else:
             self.route = route
 
-        self.render(self.page, None, parameters)
+        self.render(self.page, self._nav_temp_args, parameters)
+
+        self._nav_temp_args = None
 
 def define_page(path: str, name: str=None) -> Callable[[PageData], None]:
     """Get page from module."""
-    return getattr(__import__(path.replace('\\', '.').replace('/', '.')), (path.split('/')[-1] if len(path.split('\\')) <= 0 else path.split('\\')[-1]) if not name else name)
+    path = path.replace('\\', '.').replace('/', '.')
+
+    page = None
+
+    try:
+        page = getattr(import_module(path), path.split('.')[-1] if not name else name)
+    except AttributeError:
+        warn_explicit(f'Unable to define page: "{path}".', Warning, 'flet_navigator::define_page', 291)
+
+    return page
