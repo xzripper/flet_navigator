@@ -275,7 +275,7 @@ class FletNavigator:
                 if _parameter_parsed[1].isdigit(): parameters[_parameter_parsed[0]] = int(_parameter_parsed[1])
                 elif re_compile(self._nav_is_float_re).match(_parameter_parsed[1]): parameters[_parameter_parsed[0]] = float(_parameter_parsed[1])
                 elif _parameter_parsed[1] in ['true', 'false']: parameters[_parameter_parsed[0]] = bool(_parameter_parsed[1])
-                else: parameters[_parameter_parsed[0]] = _parameter_parsed[1].replace(URL_FN_SPACE_CHARACTER, ' ')
+                else: parameters[_parameter_parsed[0]] = _parameter_parsed[1].replace(URL_FN_SPACE_CHARACTER, ' ').replace('+', URL_FN_SPACE_CHARACTER)
 
                 self.route = route.split('?')[0]
 
