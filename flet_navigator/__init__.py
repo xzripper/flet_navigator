@@ -1,6 +1,6 @@
 """Navigator for Flet."""
 
-from flet import Page, Control
+from flet import Page
 
 from typing import Callable, Any
 
@@ -8,16 +8,44 @@ from warnings import warn_explicit
 
 from re import compile as re_compile
 
+from typing import Union
 
-FLET_NAVIGATOR_VERSION: float = '2.0.1'
+
+FLET_NAVIGATOR_VERSION: float = '2.1.1'
 """Flet Navigator Version."""
 
 ROUTE_404: str = 'ROUTE-404'
 """Route 404 Typehint."""
 
-def get_page_widgets(page: Page) -> list[Control]:
-    """Get page widgets."""
-    return page._get_children()[0]._get_children()
+class PageData:
+    """PageData Class."""
+
+    page: Page = None
+    """Current page."""
+
+    navigator: Union['FletNavigator', 'VirtualFletNavigator'] = None
+    """Navigator."""
+
+    arguments: tuple[Any] = None
+    """Arguments sent from previous page."""
+
+    previous_page: str = None
+    """Previous page."""
+
+    parameters: dict[str, Any] = None
+    """URL parameters."""
+
+    def __init__(self, page: Page, navigator: Union['FletNavigator', 'VirtualFletNavigator'], arguments: tuple[any], previous_page: str, parameters: dict[str, Any]) -> None:
+        """Initialize PageData."""
+        self.page = page
+
+        self.navigator = navigator
+
+        self.arguments = arguments
+
+        self.previous_page = previous_page
+
+        self.parameters = parameters
 
 class VirtualFletNavigator:
     """Flet Virtual Navigator Class."""
@@ -25,7 +53,7 @@ class VirtualFletNavigator:
     route: str = '/'
     """Current route."""
 
-    routes: dict[str, Callable[[Page, 'VirtualFletNavigator', tuple[Any], str], None]] = {}
+    routes: dict[str, Callable[[PageData], None]] = {}
     """All supported routes."""
 
     routes_data: dict[str, Any] = {}
@@ -38,7 +66,7 @@ class VirtualFletNavigator:
 
     _nav_route_simple_re: str = r'^[a-zA-Z_]\w*$'
 
-    def __init__(self, routes: dict[str, Callable[[Page, 'VirtualFletNavigator', tuple[Any], str], None]], route_changed_handler: Callable[[str], None]=None) -> None:
+    def __init__(self, routes: dict[str, Callable[[PageData], None]], route_changed_handler: Callable[[str], None]=None) -> None:
         """Initialize Virtual Flet Navigator."""
         self.routes = routes
 
@@ -73,14 +101,17 @@ class VirtualFletNavigator:
             if ROUTE_404 in self.routes:
                 page.clean()
 
-                self.routes[ROUTE_404](page, self, args, self._nav_previous_routes[-2] if len(self._nav_previous_routes) >= 2 else None, route_parameters)
+                self.routes[ROUTE_404](PageData(page, self, args, self._nav_previous_routes[-1] if len(self._nav_previous_routes) >= 1 else None, route_parameters))
+
+                if self.route_changed_handler:
+                    self.route_changed_handler(self.route)
 
         else:
             for route in self.routes:
                 if self.route == route:
                     page.clean()
 
-                    self.routes[route](page, self, args, self._nav_previous_routes[-2] if len(self._nav_previous_routes) >= 2 else '/', route_parameters)
+                    self.routes[route](PageData(page, self, args, self._nav_previous_routes[-1] if len(self._nav_previous_routes) >= 1 else '/', route_parameters))
 
                     page.update()
 
@@ -114,7 +145,7 @@ class FletNavigator:
     route: str = '/'
     """Current route."""
 
-    routes: dict[str, Callable[[Page, 'FletNavigator', tuple[Any], str], None]] = {}
+    routes: dict[str, Callable[[PageData], None]] = {}
     """All supported routes."""
 
     routes_data: dict[str, Any] = {}
@@ -130,7 +161,7 @@ class FletNavigator:
 
     _nav_is_float_re: str = r'^-?\d+\.\d+$'
 
-    def __init__(self, page: Page, routes: dict[str, Callable[[Page, 'FletNavigator', tuple[Any], str], None]], route_changed_handler: Callable[[str], None]=None) -> None:
+    def __init__(self, page: Page, routes: dict[str, Callable[[PageData], None]], route_changed_handler: Callable[[str], None]=None) -> None:
         """Initialize Virtual Flet Navigator."""
         self.page = page
 
@@ -161,9 +192,7 @@ class FletNavigator:
 
         self.route = route
 
-        page.go(self.route) # [Here happens double redirect].
-
-        self.render(page, args, route_parameters)
+        page.go(self.route)
 
     def render(self, page: Page, args: tuple[Any]=None, route_parameters: dict[str, Any]={}) -> None:
         """Render current route. If there is no route like that throw ROUTE-404 (if specified)."""
@@ -171,14 +200,17 @@ class FletNavigator:
             if ROUTE_404 in self.routes:
                 page.clean()
 
-                self.routes[ROUTE_404](page, self, args, self._nav_previous_routes[-1] if len(self._nav_previous_routes) >= 1 else None, route_parameters)
+                self.routes[ROUTE_404](PageData(page, self, args, self._nav_previous_routes[-1] if len(self._nav_previous_routes) >= 1 else None, route_parameters))
+
+                if self.route_changed_handler:
+                    self.route_changed_handler(self.route)
 
         else:
             for route in self.routes:
                 if self.route == route:
                     page.clean()
 
-                    self.routes[route](page, self, args, self._nav_previous_routes[-1] if len(self._nav_previous_routes) >= 1 else '/', route_parameters)
+                    self.routes[route](PageData(page, self, args, self._nav_previous_routes[-1] if len(self._nav_previous_routes) >= 1 else '/', route_parameters))
 
                     page.update()
 
@@ -242,3 +274,7 @@ class FletNavigator:
             self.route = route
 
         self.render(self.page, None, parameters)
+
+def define_page(path: str, name: str=None) -> Callable[[PageData], None]:
+    """Get page from module."""
+    return getattr(__import__(path), (path.split('/')[-1] if len(path.split('\\')) <= 0 else path.split('\\')[-1]) if not name else name)
