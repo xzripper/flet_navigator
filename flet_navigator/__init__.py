@@ -395,6 +395,6 @@ def define_page(path: str, name: str=None) -> PageDefinition:
 
     return page
 
-def template(template_definition: TemplateDefinition, page_data: PageData) -> None:
+def template(template_definition: TemplateDefinition, page_data: PageData, arguments: Arguments) -> None:
     """Render template."""
-    template_definition(page_data)
+    template_definition(page_data, arguments)
