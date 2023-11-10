@@ -1,11 +1,13 @@
-<h1 align="center">FletNavigator V2.1.1</h1>
-<i><p align="center">Simple and fast navigator (router) for Flet (Python) that allows you to create multi-page applications! [<code>pip install flet_navigator</code>].<br><b>[<a href="https://github.com/xzripper/flet_navigator/blob/main/flet-navigator-docs.md">DOCUMENTATION</a>].</b></p>
+<h1 align="center">FletNavigator V2.2.3</h1>
+<p align="center"><img src="example2.gif" width=600><br><i>FletNavigator & <a href="https://github.com/xzripper/flet_restyle">FletReStyle</a>.</i></p>
+<p align="center">Simple and fast navigator (router) for Flet (Python) that allows you to create multi-page applications! [<code>pip install flet_navigator</code>].<br><b>[<a href="https://github.com/xzripper/flet_navigator/blob/main/flet-navigator-docs.md">DOCUMENTATION</a>].</b></p>
 <p align="center">Using Example:
 
 ```python
 from flet import app, Page
 
-from flet_navigator import VirtualFletNavigator, PageData, Any, ROUTE_404
+from flet_navigator import VirtualFletNavigator, PageData, ROUTE_404
+
 
 def main_page(pg: PageData) -> None:
     ... # Main page content.
@@ -33,9 +35,9 @@ app(target=main)
 
 </p>
 
-<p align="center"><img src="example.gif" width=500></p>
+<p align="center"><img src="example.gif" width=500></p> <p align="center"><i>(Deprecated Example GIF).</i></p>
 
 See the difference between ```VirtualFletNavigator``` and ```FletNavigator```, and more <a href="https://github.com/xzripper/flet_navigator/blob/main/flet-navigator-docs.md">here</a> (<- documentation).
 
 <hr>
-<p align="center">FletNavigator v2.1.1.</p></i>
+<p align="center">FletNavigator v2.2.3.</p></i>
