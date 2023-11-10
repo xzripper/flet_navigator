@@ -28,6 +28,9 @@ def get_page_widgets(page: Page) -> list[Control]:
     """Get page widgets."""
     return page._get_children()[0]._get_children()
 
+Arguments = tuple[Any]
+"""Arguments type."""
+
 class PageData:
     """PageData Class."""
 
@@ -37,7 +40,7 @@ class PageData:
     navigator: Union['FletNavigator', 'VirtualFletNavigator'] = None
     """Navigator."""
 
-    arguments: tuple[Any] = None
+    arguments: Arguments = None
     """Arguments sent from previous page."""
 
     previous_page: str = None
@@ -46,7 +49,7 @@ class PageData:
     parameters: dict[str, Any] = None
     """URL parameters."""
 
-    def __init__(self, page: Page, navigator: Union['FletNavigator', 'VirtualFletNavigator'], arguments: tuple[any], previous_page: str, parameters: dict[str, Any]) -> None:
+    def __init__(self, page: Page, navigator: Union['FletNavigator', 'VirtualFletNavigator'], arguments: Arguments, previous_page: str, parameters: dict[str, Any]) -> None:
         """Initialize PageData."""
         self.page = page
 
@@ -61,7 +64,7 @@ class PageData:
 PageDefinition = Callable[[PageData], None]
 """Page Definition Type."""
 
-TemplateDefinition = PageDefinition
+TemplateDefinition = Callable[[PageData, Arguments], None]
 """Template Definition Type(hint)."""
 
 RouteChangedHandler = Callable[[str], None]
@@ -118,7 +121,7 @@ class VirtualFletNavigator:
 
         self.fade_effect = fade_effect
 
-    def navigate(self, route: str, page: Page, args: tuple[Any]=None) -> None:
+    def navigate(self, route: str, page: Page, args: Arguments=None) -> None:
         """Navigate to specific route."""
         if '?' in route:
             warn_explicit('VirtualFletNavigator doesn\'t have URL parameters support. Consider using page arguments or FletNavigator.', Warning, 'flet_navigator::navigate', 98)
@@ -133,11 +136,11 @@ class VirtualFletNavigator:
 
         self.fade_effect
 
-    def navigate_homepage(self, page: Page, args: tuple[Any]=None) -> None:
+    def navigate_homepage(self, page: Page, args: Arguments=None) -> None:
         """Navigate homepage."""
         self.navigate(self.homepage, page, args)
 
-    def render(self, page: Page, args: tuple[Any]=None) -> None:
+    def render(self, page: Page, args: Arguments=None) -> None:
         """Render current route. If there is no route like that throw ROUTE-404 (if specified)."""
         if self.route not in self.routes:
             if ROUTE_404 in self.routes:
@@ -226,7 +229,7 @@ class FletNavigator:
 
     _nav_previous_routes: list[str] = ['/']
 
-    _nav_temp_args: tuple[Any] = None
+    _nav_temp_args: Arguments = None
 
     _nav_route_simple_re: str = r'^[a-zA-Z_]\w*$'
     _nav_route_advanced_re: str = r'^[a-zA-Z_]\w*\?\w+=(?:[\w+~`!@"#№$;%^:*-,.|\/\\<>\'{}[\]()-]+)(?:&\w+=(?:[\w+~`!@"#№$;%^:*-,.|\/\\<>\'{}[\]()-]+))*$'
@@ -260,7 +263,7 @@ class FletNavigator:
 
         self.fade_effect = fade_effect
 
-    def navigate(self, route: str, page: Page, args: tuple[Any]=None) -> None:
+    def navigate(self, route: str, page: Page, args: Arguments=None) -> None:
         """Navigate to specific route."""
         self._nav_previous_routes.append(self.route)
 
@@ -270,11 +273,11 @@ class FletNavigator:
 
         page.go(self.route)
 
-    def navigate_homepage(self, page: Page, args: tuple[Any]=None) -> None:
+    def navigate_homepage(self, page: Page, args: Arguments=None) -> None:
         """Navigate homepage."""
         self.navigate(self.homepage, page, args)
 
-    def render(self, page: Page, args: tuple[Any]=None, route_parameters: dict[str, Any]={}) -> None:
+    def render(self, page: Page, args: Arguments=None, route_parameters: dict[str, Any]={}) -> None:
         """Render current route. If there is no route like that throw ROUTE-404 (if specified)."""
         if self.route not in self.routes:
             if ROUTE_404 in self.routes:
