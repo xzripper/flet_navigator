@@ -1,6 +1,8 @@
 """Navigator for Flet."""
 
-from flet import Page
+from flet import Page, Control
+
+from time import sleep
 
 from typing import Callable, Any
 
@@ -13,7 +15,7 @@ from importlib import import_module
 from typing import Union
 
 
-FLET_NAVIGATOR_VERSION: float = '2.1.3'
+FLET_NAVIGATOR_VERSION: float = '2.2.3'
 """Flet Navigator Version."""
 
 ROUTE_404: str = 'ROUTE-404'
@@ -21,6 +23,10 @@ ROUTE_404: str = 'ROUTE-404'
 
 URL_FN_SPACE_CHARACTER: str = '_$urlspace_'
 """FletNavigator URL Space Character."""
+
+def get_page_widgets(page: Page) -> list[Control]:
+    """Get page widgets."""
+    return page._get_children()[0]._get_children()
 
 class PageData:
     """PageData Class."""
@@ -52,26 +58,44 @@ class PageData:
 
         self.parameters = parameters
 
+PageDefinition = Callable[[PageData], None]
+"""Page Definition Type."""
+
+TemplateDefinition = PageDefinition
+"""Template Definition Type(hint)."""
+
+RouteChangedHandler = Callable[[str], None]
+"""Route Changed Handler Type."""
+
+Routes = dict[str, PageDefinition]
+"""Routes Type."""
+
 class VirtualFletNavigator:
     """Flet Virtual Navigator Class."""
 
     route: str = '/'
     """Current route."""
 
-    routes: dict[str, Callable[[PageData], None]] = {}
+    routes: Routes = {}
     """All supported routes."""
 
     routes_data: dict[str, Any] = {}
     """Routes data (cookies-like, but global)."""
 
-    route_changed_handler: Callable[[str], None] = None
+    homepage: str = '/'
+    """Homepage route."""
+
+    fade_effect: bool = True
+    """Add fade out to all page widgets before rendering another page. BETA!"""
+
+    route_changed_handler: RouteChangedHandler = None
     """On route changed handler."""
 
     _nav_previous_routes: list[str] = ['/']
 
     _nav_route_simple_re: str = r'^[a-zA-Z_]\w*$'
 
-    def __init__(self, routes: dict[str, Callable[[PageData], None]], route_changed_handler: Callable[[str], None]=None) -> None:
+    def __init__(self, routes: Routes, route_changed_handler: RouteChangedHandler=None, fade_effect: bool=True) -> None:
         """Initialize Virtual Flet Navigator."""
         self.routes = routes
 
@@ -92,13 +116,26 @@ class VirtualFletNavigator:
         for route in self.routes:
             self.routes_data[route] = None
 
+        self.fade_effect = fade_effect
+
     def navigate(self, route: str, page: Page, args: tuple[Any]=None) -> None:
         """Navigate to specific route."""
+        if '?' in route:
+            warn_explicit('VirtualFletNavigator doesn\'t have URL parameters support. Consider using page arguments or FletNavigator.', Warning, 'flet_navigator::navigate', 98)
+
+            route = route.split('?')[0]
+
         self._nav_previous_routes.append(self.route)
 
         self.route = route
 
         self.render(page, args)
+
+        self.fade_effect
+
+    def navigate_homepage(self, page: Page, args: tuple[Any]=None) -> None:
+        """Navigate homepage."""
+        self.navigate(self.homepage, page, args)
 
     def render(self, page: Page, args: tuple[Any]=None) -> None:
         """Render current route. If there is no route like that throw ROUTE-404 (if specified)."""
@@ -114,7 +151,25 @@ class VirtualFletNavigator:
         else:
             for route in self.routes:
                 if self.route == route:
-                    page.clean()
+                    if self.fade_effect:
+                        page_widgets = get_page_widgets(page)
+
+                        delay = 0.1
+
+                        if len(page_widgets) >= 10: delay = 0.01
+
+                        for control in page_widgets:
+                            for opacity in [0.5, 0]:                                
+                                control.opacity = opacity
+
+                                page.update()
+
+                                sleep(delay)
+
+                        page.clean()
+
+                    else:
+                        page.clean()
 
                     self.routes[route](PageData(page, self, args, self._nav_previous_routes[-1] if len(self._nav_previous_routes) >= 1 else '/', {}))
 
@@ -141,6 +196,10 @@ class VirtualFletNavigator:
         else:
             return None
 
+    def set_homepage(self, homepage: str) -> None:
+        """Set homepage."""
+        self.homepage = homepage
+
 class FletNavigator:
     """Flet Navigator Class."""
 
@@ -150,13 +209,19 @@ class FletNavigator:
     route: str = '/'
     """Current route."""
 
-    routes: dict[str, Callable[[PageData], None]] = {}
+    routes: Routes = {}
     """All supported routes."""
 
     routes_data: dict[str, Any] = {}
     """Routes data (cookies-like, but global)."""
 
-    route_changed_handler: Callable[[str], None] = None
+    homepage: str = '/'
+    """Homepage route."""
+
+    fade_effect: bool = True
+    """Add fade out to all page widgets before rendering another page. BETA!"""
+
+    route_changed_handler: RouteChangedHandler = None
     """On route changed handler."""
 
     _nav_previous_routes: list[str] = ['/']
@@ -168,7 +233,7 @@ class FletNavigator:
 
     _nav_is_float_re: str = r'^-?\d+\.\d+$'
 
-    def __init__(self, page: Page, routes: dict[str, Callable[[PageData], None]], route_changed_handler: Callable[[str], None]=None) -> None:
+    def __init__(self, page: Page, routes: Routes, route_changed_handler: RouteChangedHandler=None, fade_effect: bool=True) -> None:
         """Initialize Virtual Flet Navigator."""
         self.page = page
 
@@ -193,15 +258,21 @@ class FletNavigator:
 
         self.page.on_route_change = self._nav_route_change_handler
 
+        self.fade_effect = fade_effect
+
     def navigate(self, route: str, page: Page, args: tuple[Any]=None) -> None:
         """Navigate to specific route."""
         self._nav_previous_routes.append(self.route)
 
         self._nav_temp_args = args
 
-        self.route = route.replace(' ', URL_FN_SPACE_CHARACTER)
+        self.route = route
 
         page.go(self.route)
+
+    def navigate_homepage(self, page: Page, args: tuple[Any]=None) -> None:
+        """Navigate homepage."""
+        self.navigate(self.homepage, page, args)
 
     def render(self, page: Page, args: tuple[Any]=None, route_parameters: dict[str, Any]={}) -> None:
         """Render current route. If there is no route like that throw ROUTE-404 (if specified)."""
@@ -217,7 +288,25 @@ class FletNavigator:
         else:
             for route in self.routes:
                 if self.route == route:
-                    page.clean()
+                    if self.fade_effect:
+                        page_widgets = get_page_widgets(page)
+
+                        delay = 0.1
+
+                        if len(page_widgets) >= 10: delay = 0.01
+
+                        for control in page_widgets:
+                            for opacity in [0.5, 0]:                                
+                                control.opacity = opacity
+
+                                page.update()
+
+                                sleep(delay)
+
+                        page.clean()
+
+                    else:
+                        page.clean()
 
                     self.routes[route](PageData(page, self, args, self._nav_previous_routes[-1] if len(self._nav_previous_routes) >= 1 else '/', route_parameters))
 
@@ -243,6 +332,10 @@ class FletNavigator:
 
         else:
             return None
+
+    def set_homepage(self, homepage: str) -> None:
+        """Set homepage."""
+        self.homepage = homepage
 
     def _nav_route_change_handler(self, _) -> None:
         route: str = self.page.route.replace(' ', URL_FN_SPACE_CHARACTER).replace('%20', URL_FN_SPACE_CHARACTER).replace('+', URL_FN_SPACE_CHARACTER)
@@ -286,7 +379,7 @@ class FletNavigator:
 
         self._nav_temp_args = None
 
-def define_page(path: str, name: str=None) -> Callable[[PageData], None]:
+def define_page(path: str, name: str=None) -> PageDefinition:
     """Get page from module."""
     path = path.replace('\\', '.').replace('/', '.')
 
@@ -298,3 +391,7 @@ def define_page(path: str, name: str=None) -> Callable[[PageData], None]:
         warn_explicit(f'Unable to define page: "{path}".', Warning, 'flet_navigator::define_page', 291)
 
     return page
+
+def template(template_definition: TemplateDefinition, page_data: PageData) -> None:
+    """Render template."""
+    template_definition(page_data)
