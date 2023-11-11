@@ -15,7 +15,7 @@ from importlib import import_module
 from typing import Union
 
 
-FLET_NAVIGATOR_VERSION: float = '2.2.3'
+FLET_NAVIGATOR_VERSION: float = '2.2.4'
 """Flet Navigator Version."""
 
 ROUTE_404: str = 'ROUTE-404'
@@ -64,7 +64,7 @@ class PageData:
 PageDefinition = Callable[[PageData], None]
 """Page Definition Type."""
 
-TemplateDefinition = Callable[[PageData, Arguments], None]
+TemplateDefinition = Callable[[PageData, Arguments], Union[Control, None]]
 """Template Definition Type(hint)."""
 
 RouteChangedHandler = Callable[[str], None]
@@ -395,6 +395,6 @@ def define_page(path: str, name: str=None) -> PageDefinition:
 
     return page
 
-def template(template_definition: TemplateDefinition, page_data: PageData, arguments: Arguments) -> None:
+def template(template_definition: TemplateDefinition, page_data: PageData, arguments: Arguments) -> Union[Control, None]:
     """Render template."""
-    template_definition(page_data, arguments)
+    return template_definition(page_data, arguments)
