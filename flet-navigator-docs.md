@@ -1,4 +1,4 @@
-<h1 align="center">FletNavigator v2.2.3 Documentation.</h1>
+<h1 align="center">FletNavigator v2.2.4 Documentation.</h1>
 
 <h4 align="center">Menu:</h4>
 
@@ -211,13 +211,13 @@ app(target=main, view=WEB_BROWSER) # Non-Virtual Navigator recommended in web.
 
 <h3 align="center"><code>template</code></h3>
 
-```template(template_definition: TemplateDefinition, page_data: PageData) -> None```
+```template(template_definition: TemplateDefinition, page_data: PageData) -> Union[Control, None]```
 
 Used to render template. Example:<br>
 
 ```python
 def go_to_button(pg: PageData, args: Arguments) -> None:
-    pg.page.add(FilledButton(args[0], on_click=lambda _: pg.navigator.navigate(args[1], pg.page, args[2])))
+    pg.page.add(FilledButton(args[0], on_click=lambda _: pg.navigator.navigate(args[1], pg.page, args[2]))) # Or return FilledButton so we can do things with button later.
 
 def main(pg: PageData) -> None:
     pg.page.add(Text('Hello World!'))
@@ -286,4 +286,4 @@ Summary! Now you know difference between virtual and non-virtual navigator, how 
 
 <hr>
 
-<p align="center"><b><i>FletNavigator V2.2.3</i></b></p>
+<p align="center"><b><i>FletNavigator V2.2.4</i></b></p>
