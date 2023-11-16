@@ -15,7 +15,7 @@ from importlib import import_module
 from typing import Union
 
 
-FLET_NAVIGATOR_VERSION: float = '2.2.4'
+FLET_NAVIGATOR_VERSION: str = '2.2.5'
 """Flet Navigator Version."""
 
 ROUTE_404: str = 'ROUTE-404'
@@ -24,12 +24,15 @@ ROUTE_404: str = 'ROUTE-404'
 URL_FN_SPACE_CHARACTER: str = '_$urlspace_'
 """FletNavigator URL Space Character."""
 
+
 def get_page_widgets(page: Page) -> list[Control]:
     """Get page widgets."""
     return page._get_children()[0]._get_children()
 
+
 Arguments = tuple[Any]
 """Arguments type."""
+
 
 class PageData:
     """PageData Class."""
@@ -61,6 +64,7 @@ class PageData:
 
         self.parameters = parameters
 
+
 PageDefinition = Callable[[PageData], None]
 """Page Definition Type."""
 
@@ -72,6 +76,7 @@ RouteChangedHandler = Callable[[str], None]
 
 Routes = dict[str, PageDefinition]
 """Routes Type."""
+
 
 class VirtualFletNavigator:
     """Flet Virtual Navigator Class."""
@@ -109,7 +114,10 @@ class VirtualFletNavigator:
         for route in self.routes:
             if route != '/' and route != ROUTE_404:
                 if not re_compile(self._nav_route_simple_re).match(route):
-                    warn_explicit(f'Wrong route name: "{route}". Allowed only digits and underscores.', Warning, 'flet_navigator::constructor', 51)
+                    warn_explicit(
+                        f'Wrong route name: "{route}". Allowed only digits and underscores.', Warning,
+                        'flet_navigator::constructor', 51
+                    )
 
                     routes_to_delete.append(route)
 
@@ -124,7 +132,10 @@ class VirtualFletNavigator:
     def navigate(self, route: str, page: Page, args: Arguments=None) -> None:
         """Navigate to specific route."""
         if '?' in route:
-            warn_explicit('VirtualFletNavigator doesn\'t have URL parameters support. Consider using page arguments or FletNavigator.', Warning, 'flet_navigator::navigate', 98)
+            warn_explicit(
+                'VirtualFletNavigator doesn\'t have URL parameters support. Consider using page arguments or FletNavigator.', Warning,
+                'flet_navigator::navigate', 98
+            )
 
             route = route.split('?')[0]
 
@@ -133,8 +144,6 @@ class VirtualFletNavigator:
         self.route = route
 
         self.render(page, args)
-
-        self.fade_effect
 
     def navigate_homepage(self, page: Page, args: Arguments=None) -> None:
         """Navigate homepage."""
@@ -146,7 +155,15 @@ class VirtualFletNavigator:
             if ROUTE_404 in self.routes:
                 page.clean()
 
-                self.routes[ROUTE_404](PageData(page, self, args, self._nav_previous_routes[-1] if len(self._nav_previous_routes) >= 1 else None, {}))
+                self.routes[ROUTE_404](
+                    PageData(
+                        page, self, args,
+
+                        self._nav_previous_routes[-1] if len(self._nav_previous_routes) >= 1 else None,
+
+                        {}
+                    )
+                )
 
                 if self.route_changed_handler:
                     self.route_changed_handler(self.route)
@@ -159,7 +176,8 @@ class VirtualFletNavigator:
 
                         delay = 0.1
 
-                        if len(page_widgets) >= 10: delay = 0.01
+                        if len(page_widgets) >= 10:
+                            delay = 0.01
 
                         for control in page_widgets:
                             for opacity in [0.5, 0]:                                
@@ -174,7 +192,15 @@ class VirtualFletNavigator:
                     else:
                         page.clean()
 
-                    self.routes[route](PageData(page, self, args, self._nav_previous_routes[-1] if len(self._nav_previous_routes) >= 1 else '/', {}))
+                    self.routes[route](
+                        PageData(
+                            page, self, args,
+
+                            self._nav_previous_routes[-1] if len(self._nav_previous_routes) >= 1 else '/',
+
+                            {}
+                        )
+                    )
 
                     page.update()
 
@@ -249,7 +275,10 @@ class FletNavigator:
         for route in self.routes:
             if route != '/' and route != ROUTE_404:
                 if not re_compile(self._nav_route_simple_re).match(route):
-                    warn_explicit(f'Wrong route name: "{route}". Allowed only digits and underscores.', Warning, 'flet_navigator::constructor', 51)
+                    warn_explicit(
+                        f'Wrong route name: "{route}". Allowed only digits and underscores.', Warning,
+                        'flet_navigator::constructor', 51
+                    )
 
                     routes_to_delete.append(route)
 
@@ -283,7 +312,15 @@ class FletNavigator:
             if ROUTE_404 in self.routes:
                 page.clean()
 
-                self.routes[ROUTE_404](PageData(page, self, args, self._nav_previous_routes[-1] if len(self._nav_previous_routes) >= 1 else None, route_parameters))
+                self.routes[ROUTE_404](
+                    PageData(
+                        page, self, args,
+
+                        self._nav_previous_routes[-1] if len(self._nav_previous_routes) >= 1 else None,
+
+                        route_parameters
+                    )
+                )
 
                 if self.route_changed_handler:
                     self.route_changed_handler(self.route)
@@ -296,7 +333,8 @@ class FletNavigator:
 
                         delay = 0.1
 
-                        if len(page_widgets) >= 10: delay = 0.01
+                        if len(page_widgets) >= 10:
+                            delay = 0.01
 
                         for control in page_widgets:
                             for opacity in [0.5, 0]:                                
@@ -311,7 +349,14 @@ class FletNavigator:
                     else:
                         page.clean()
 
-                    self.routes[route](PageData(page, self, args, self._nav_previous_routes[-1] if len(self._nav_previous_routes) >= 1 else '/', route_parameters))
+                    self.routes[route](
+                        PageData(
+                            page, self, args,
+
+                            self._nav_previous_routes[-1] if len(self._nav_previous_routes) >= 1 else '/',
+
+                            route_parameters)
+                    )
 
                     page.update()
 
@@ -341,46 +386,68 @@ class FletNavigator:
         self.homepage = homepage
 
     def _nav_route_change_handler(self, _) -> None:
-        route: str = self.page.route.replace(' ', URL_FN_SPACE_CHARACTER).replace('%20', URL_FN_SPACE_CHARACTER).replace('+', URL_FN_SPACE_CHARACTER)
+        route: str = self.page.route \
+            .replace(' ', URL_FN_SPACE_CHARACTER) \
+            .replace('%20', URL_FN_SPACE_CHARACTER) \
+            .replace('+', URL_FN_SPACE_CHARACTER)
 
-        if route.startswith('/') and len(route) >= 2: route = route[1:]
+        if route.startswith('/') and len(route) >= 2:
+            route = route[1:]
 
         parameters = {}
 
         if re_compile(self._nav_route_advanced_re).match(route):
             _parameters_list = route.split('?')[1]
 
-            if '&' in _parameters_list: _parameters_list = _parameters_list.split('&')
-            else: _parameters_list = [_parameters_list]
+            if '&' in _parameters_list:
+                _parameters_list = _parameters_list.split('&')
+
+            else:
+                _parameters_list = [_parameters_list]
 
             for _parameter in _parameters_list:
                 _parameter_parsed = _parameter.split('=')
 
-                if _parameter_parsed[0].startswith('?'): _parameter_parsed[0] = _parameter_parsed[0][1:]
+                if _parameter_parsed[0].startswith('?'):
+                    _parameter_parsed[0] = _parameter_parsed[0][1:]
 
                 if len(_parameter_parsed) <= 1:
-                    warn_explicit(f'Unable to parse route parameters ({_parameters_list.index(_parameter)}).', Warning, 'flet_navigator::RouteChangeHandler', 261)
+                    warn_explicit(
+                        f'Unable to parse route parameters ({_parameters_list.index(_parameter)}).', Warning,
+                        'flet_navigator::RouteChangeHandler', 261
+                    )
 
                     continue
 
                 if _parameter_parsed[0].isdigit():
-                    warn_explicit(f'Unable to parse route parameters ({_parameters_list.index(_parameter)}): key should be string.', Warning, 'flet_navigator::RouteChangeHandler', 266)
+                    warn_explicit(
+                        f'Unable to parse route parameters ({_parameters_list.index(_parameter)}): key should be string.', Warning,
+                        'flet_navigator::RouteChangeHandler', 266
+                    )
 
                     continue
 
-                if _parameter_parsed[1].isdigit(): parameters[_parameter_parsed[0]] = int(_parameter_parsed[1])
-                elif re_compile(self._nav_is_float_re).match(_parameter_parsed[1]): parameters[_parameter_parsed[0]] = float(_parameter_parsed[1])
-                elif _parameter_parsed[1] in ['true', 'false']: parameters[_parameter_parsed[0]] = bool(_parameter_parsed[1])
-                else: parameters[_parameter_parsed[0]] = _parameter_parsed[1].replace(URL_FN_SPACE_CHARACTER, ' ')
+                if _parameter_parsed[1].isdigit():
+                    parameters[_parameter_parsed[0]] = int(_parameter_parsed[1])
+
+                elif re_compile(self._nav_is_float_re).match(_parameter_parsed[1]):
+                    parameters[_parameter_parsed[0]] = float(_parameter_parsed[1])
+
+                elif _parameter_parsed[1] in ['true', 'false']:
+                    parameters[_parameter_parsed[0]] = bool(_parameter_parsed[1])
+
+                else:
+                    parameters[_parameter_parsed[0]] = _parameter_parsed[1].replace(URL_FN_SPACE_CHARACTER, ' ')
 
                 self.route = route.split('?')[0]
 
         else:
-            self.route = route.split('?')[0] # In case user did a syntax error. 
+            self.route = route.split('?')[0]
 
         self.render(self.page, self._nav_temp_args, parameters)
 
         self._nav_temp_args = None
+
 
 def define_page(path: str, name: str=None) -> PageDefinition:
     """Get page from module."""
@@ -394,6 +461,7 @@ def define_page(path: str, name: str=None) -> PageDefinition:
         warn_explicit(f'Unable to define page: "{path}".', Warning, 'flet_navigator::define_page', 291)
 
     return page
+
 
 def template(template_definition: TemplateDefinition, page_data: PageData, arguments: Arguments) -> Union[Control, None]:
     """Render template."""
