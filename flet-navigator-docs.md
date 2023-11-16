@@ -1,4 +1,4 @@
-<h1 align="center">FletNavigator v2.2.4 Documentation.</h1>
+<h1 align="center">FletNavigator v2.2.5 Documentation.</h1>
 
 <h4 align="center">Menu:</h4>
 
@@ -286,4 +286,4 @@ Summary! Now you know difference between virtual and non-virtual navigator, how 
 
 <hr>
 
-<p align="center"><b><i>FletNavigator V2.2.4</i></b></p>
+<p align="center"><b><i>FletNavigator V2.2.5</i></b></p>
