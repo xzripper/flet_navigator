@@ -1,4 +1,4 @@
-<h1 align="center">FletNavigator v2.2.5 Documentation.</h1>
+<h1 align="center">FletNavigator v2.3.5 Documentation.</h1>
 
 <h4 align="center">Menu:</h4>
 
@@ -34,11 +34,9 @@ Installation is quite easy: ```pip install flet_navigator```
 
 **FletNavigator TODO**:
   - **Animations between page change. (50%).**
-  - **Fix bugs.**
 
 **FletNavigator Known Bugs**:
-  - **Unable to trace previous page when manually updating URL in browser (`_nav_route_change_handler`). (Seems like fixed).**
-  - **Non-tested in real projects.**
+  - **No known bugs...**
 
 <hr>
 
@@ -100,15 +98,16 @@ Homepage is main page, that you can set with `set_homepage`, and navigate with `
   - `routes_data: dict[str, Any] = {}` - Routes data.
   - `homepage: str = '/'` - Homepage (main page).
   - `fade_effect: bool = True` - Use fade effect when switching pages? BETA.
+  - `appbars: dict[int, Control] = {}` - Dictionary of appbars for each page (ID).
   - `route_changed_handler: RouteChangedHandler = None` - Route changed handler.<br><br>
 
   - `__init__(routes: dict[str, Callable[[Page, 'VirtualFletNavigator', tuple[Any], str], None]], route_changed_handler: Callable[[str], None]=None) -> None` - Initialize Virtual Flet Navigator.
   - `navigate(route: str, page: Page, args: tuple[Any]=None) -> None` - Navigate to specific route. Specify `args` to transfer arguments to other page.
   - `navigate_homepage(page: Page, args: tuple[Any]=None) -> None` - Navigate to homepage.
   - `render(page: Page, args: tuple[Any]=None) -> None` - Render current route. If there is no route like that throw ROUTE-404 (if specified). Should be called only one time.
-  - `set_route_data(self, route: str, data: Any) -> int` - Set route data (cookies-like mechanism). Returns success/fail.
-  - `get_route_data(self, route: str) -> Any` - Get route data.
-  - `set_homepage(self, homepage: str) -> None` - Set homepage (main page).
+  - `set_route_data(self, route: str, data: Any) -> int` - Set route data (cookies-like mechanism). Returns success/fail. More <a href="github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>.
+  - `get_route_data(self, route: str) -> Any` - Get route data. More <a href="github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>.
+  - `set_homepage(self, homepage: str) -> None` - Set homepage (main page). More <a href="github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>.
 
 Using example:
 
@@ -153,15 +152,16 @@ app(target=main)
   - `routes_data: dict[str, Any] = {}` - Routes data.
   - `homepage: str = '/'` - Homepage (main page).
   - `fade_effect: bool = True` - Use fade effect when switching pages? BETA.
+  - `appbars: dict[int, Control] = {}` - Dictionary of appbars for each page (ID).
   - `route_changed_handler: RouteChangedHandler = None` - Route changed handler.<br><br>
 
   - `__init__(page: Page, routes: dict[str, Callable[[Page, 'VirtualFletNavigator', tuple[Any], str], None]], route_changed_handler: Callable[[str], None]=None) -> None` - Initialize Flet Navigator.
   - `navigate(route: str, page: Page, args: tuple[Any]=None) -> None` - Navigate to specific route. Specify `args` to transfer arguments to other page.
   - `navigate_homepage(page: Page, args: tuple[Any]=None) -> None` - Navigate to homepage (main page).
   - `render(page: Page, args: tuple[Any]=None, route_parameters: dict[str, Any]={}) -> None` - Render current route. If there is no route like that throw ROUTE-404 (if specified). Should be called only one time.
-  - `set_route_data(route: str, data: Any) -> int` - Set route data (cookies-like mechanism). Returns success/fail.
-  - `get_route_data(route: str) -> Any` - Get route data.
-  - `set_homepage(homepage: str) -> None` - Set homepage (main page).
+  - `set_route_data(route: str, data: Any) -> int` - Set route data (cookies-like mechanism). Returns success/fail. More <a href="github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>.
+  - `get_route_data(route: str) -> Any` - Get route data. More <a href="github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>.
+  - `set_homepage(homepage: str) -> None` - Set homepage (main page). More <a href="github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>.
 
 Using example:
 
@@ -206,32 +206,17 @@ app(target=main, view=WEB_BROWSER) # Non-Virtual Navigator recommended in web.
   - `arguments: Arguments = None` - Arguments sent from previous page.
   - `previous_page: str = None` - Previous page.
   - `parameters: dict[str, Any] = None` - URL parameters. (Always `None` if `VirtualFletNavigator` used).
+  - `page_id: int = None` - Page ID.<br><br>
 
-<hr>
-
-<h3 align="center"><code>template</code></h3>
-
-```template(template_definition: TemplateDefinition, page_data: PageData) -> Union[Control, None]```
-
-Used to render template. Example:<br>
-
-```python
-def go_to_button(pg: PageData, args: Arguments) -> None:
-    pg.page.add(FilledButton(args[0], on_click=lambda _: pg.navigator.navigate(args[1], pg.page, args[2]))) # Or return FilledButton so we can do things with button later.
-
-def main(pg: PageData) -> None:
-    pg.page.add(Text('Hello World!'))
-
-    template(go_to_button, pg, ('Go to second page.', 'second_page', None))
-```
+  - `set_appbar(appbar: Control) -> None` - Set appbar for current page. More <a href="github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>.
 
 <hr>
 
 <h3 align="center"><code>define_page</code></h3>
 
-```define_page(path: str, name: str=None) -> Callable[[PageData], None]```
+```define_page(path: str, name: str=None) -> PageDefinition```
 
-Used to import page from other file. Example:<br><br>
+Used to import page from other file. More <a href="github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>. Example:<br><br>
 
 `second_page.py`
 
@@ -279,6 +264,24 @@ define_page('second_page', 'my_second_page_name') # => my_second_page_name
 
 <hr>
 
+<h3 align="center"><code>template</code></h3>
+
+```template(template_definition: TemplateDefinition, page_data: PageData, arguments: Arguments=None) -> Union[Control, None]```
+
+Used to render template. More <a href="github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>. Example:<br>
+
+```python
+def go_to_button(pg: PageData, args: Arguments) -> None:
+    pg.page.add(FilledButton(args[0], on_click=lambda _: pg.navigator.navigate(args[1], pg.page, args[2]))) # Or return FilledButton so we can do things with button later.
+
+def main(pg: PageData) -> None:
+    pg.page.add(Text('Hello World!'))
+
+    template(go_to_button, pg, ('Go to second page.', 'second_page', None)) # Out is FilledButton with text 'Go to second page.', and on click redirect to `second_page` happens.
+```
+
+<hr>
+
 <h3 align="center">Summary.</h3>
 Summary! Now you know difference between virtual and non-virtual navigator, how to use navigator, etc! Good luck, have fun! But remember that project isn't finished!<br><br>
 
@@ -286,4 +289,4 @@ Summary! Now you know difference between virtual and non-virtual navigator, how 
 
 <hr>
 
-<p align="center"><b><i>FletNavigator V2.2.5</i></b></p>
+<p align="center"><b><i>FletNavigator V2.3.5</i></b></p>
