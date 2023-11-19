@@ -107,11 +107,11 @@ class VirtualFletNavigator:
     fade_effect: bool = True
     """Add fade out to all page widgets before rendering another page. BETA!"""
 
-    route_changed_handler: RouteChangedHandler = None
-    """On route changed handler."""
-
     appbars: dict[int, Control] = {}
     """Dictionary of appbars for each page ID."""
+
+    route_changed_handler: RouteChangedHandler = None
+    """On route changed handler."""
 
     _nav_previous_routes: list[str] = ['/']
 
@@ -278,11 +278,11 @@ class FletNavigator:
     fade_effect: bool = True
     """Add fade out to all page widgets before rendering another page. BETA!"""
 
-    route_changed_handler: RouteChangedHandler = None
-    """On route changed handler."""
-
     appbars: dict[int, Control] = {}
     """Dictionary of appbars for each page ID."""
+
+    route_changed_handler: RouteChangedHandler = None
+    """On route changed handler."""
 
     _nav_previous_routes: list[str] = ['/']
 
