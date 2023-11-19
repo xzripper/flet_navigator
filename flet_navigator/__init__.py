@@ -15,7 +15,7 @@ from importlib import import_module
 from typing import Union
 
 
-FLET_NAVIGATOR_VERSION: str = '2.2.5'
+FLET_NAVIGATOR_VERSION: str = '2.3.5'
 """Flet Navigator Version."""
 
 ROUTE_404: str = 'ROUTE-404'
@@ -52,7 +52,10 @@ class PageData:
     parameters: dict[str, Any] = None
     """URL parameters."""
 
-    def __init__(self, page: Page, navigator: Union['FletNavigator', 'VirtualFletNavigator'], arguments: Arguments, previous_page: str, parameters: dict[str, Any]) -> None:
+    page_id: int = None
+    """Page ID."""
+
+    def __init__(self, page: Page, navigator: Union['FletNavigator', 'VirtualFletNavigator'], arguments: Arguments, previous_page: str, parameters: dict[str, Any], page_id: int) -> None:
         """Initialize PageData."""
         self.page = page
 
@@ -63,6 +66,14 @@ class PageData:
         self.previous_page = previous_page
 
         self.parameters = parameters
+
+        self.page_id = page_id
+
+    def set_appbar(self, appbar: Control) -> None:
+        """Set appbar for this page (ID)."""
+        self.page.appbar = appbar
+
+        self.navigator.appbars[self.page_id] = appbar
 
 
 PageDefinition = Callable[[PageData], None]
@@ -98,6 +109,9 @@ class VirtualFletNavigator:
 
     route_changed_handler: RouteChangedHandler = None
     """On route changed handler."""
+
+    appbars: dict[int, Control] = {}
+    """Dictionary of appbars for each page ID."""
 
     _nav_previous_routes: list[str] = ['/']
 
@@ -155,13 +169,19 @@ class VirtualFletNavigator:
             if ROUTE_404 in self.routes:
                 page.clean()
 
+                if 404 in self.appbars:
+                    page.appbar = self.appbars[404]
+
+                else:
+                    page.appbar = None
+
                 self.routes[ROUTE_404](
                     PageData(
                         page, self, args,
 
                         self._nav_previous_routes[-1] if len(self._nav_previous_routes) >= 1 else None,
 
-                        {}
+                        {}, 404
                     )
                 )
 
@@ -192,13 +212,21 @@ class VirtualFletNavigator:
                     else:
                         page.clean()
 
+                    page_id = list(self.routes.keys()).index(route) + 1
+
+                    if page_id in self.appbars:
+                        page.appbar = self.appbars[page_id]
+
+                    else:
+                        page.appbar = None
+
                     self.routes[route](
                         PageData(
                             page, self, args,
 
                             self._nav_previous_routes[-1] if len(self._nav_previous_routes) >= 1 else '/',
 
-                            {}
+                            {}, page_id
                         )
                     )
 
@@ -252,6 +280,9 @@ class FletNavigator:
 
     route_changed_handler: RouteChangedHandler = None
     """On route changed handler."""
+
+    appbars: dict[int, Control] = {}
+    """Dictionary of appbars for each page ID."""
 
     _nav_previous_routes: list[str] = ['/']
 
@@ -312,13 +343,19 @@ class FletNavigator:
             if ROUTE_404 in self.routes:
                 page.clean()
 
+                if 404 in self.appbars:
+                    page.appbar = self.appbars[404]
+
+                else:
+                    page.appbar = None
+
                 self.routes[ROUTE_404](
                     PageData(
                         page, self, args,
 
                         self._nav_previous_routes[-1] if len(self._nav_previous_routes) >= 1 else None,
 
-                        route_parameters
+                        route_parameters, 404
                     )
                 )
 
@@ -349,13 +386,21 @@ class FletNavigator:
                     else:
                         page.clean()
 
+                    page_id = list(self.routes.keys()).index(route) + 1
+
+                    if page_id in self.appbars:
+                        page.appbar = self.appbars[page_id]
+
+                    else:
+                        page.appbar = None
+
                     self.routes[route](
                         PageData(
                             page, self, args,
 
                             self._nav_previous_routes[-1] if len(self._nav_previous_routes) >= 1 else '/',
 
-                            route_parameters)
+                            route_parameters, page_id)
                     )
 
                     page.update()
@@ -463,6 +508,6 @@ def define_page(path: str, name: str=None) -> PageDefinition:
     return page
 
 
-def template(template_definition: TemplateDefinition, page_data: PageData, arguments: Arguments) -> Union[Control, None]:
+def template(template_definition: TemplateDefinition, page_data: PageData, arguments: Arguments=None) -> Union[Control, None]:
     """Render template."""
     return template_definition(page_data, arguments)
