@@ -85,7 +85,7 @@ class NavigatorAnimation:
     """Animation delay."""
 
     optimized_delay: float = 0.001
-    """Animation optimized delay (when too much controls on the page)."""
+    """Animation optimized delay (when a lot of controls on the page)."""
 
     optimization_threshold: int = 5
     """Optimization threshold (maximal amount of controls that force optimized delay using instead of simple delay)."""
