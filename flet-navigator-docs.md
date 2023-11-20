@@ -99,11 +99,11 @@ Homepage is main page, that you can set with `set_homepage`, and navigate with `
   - `routes: Routes = {}` - Registered routes.
   - `routes_data: dict[str, Any] = {}` - Routes data.
   - `homepage: str = '/'` - Homepage (main page).
-  - `fade_effect: bool = True` - Use fade effect when switching pages? BETA.
+  - `navigator_animation: NavigatorAnimation = NavigatorAnimation()` - Page switch animation.
   - `appbars: dict[int, Control] = {}` - Dictionary of appbars for each page (ID).
   - `route_changed_handler: RouteChangedHandler = None` - Route changed handler.<br><br>
 
-  - `__init__(routes: dict[str, Callable[[Page, 'VirtualFletNavigator', tuple[Any], str], None]], route_changed_handler: Callable[[str], None]=None) -> None` - Initialize Virtual Flet Navigator.
+  - `__init__(routes: dict[str, Callable[[Page, 'VirtualFletNavigator', tuple[Any], str], None]], route_changed_handler: Callable[[str], None]=None, navigator_animation: NavigatorAnimation=NavigatorAnimation()) -> None` - Initialize Virtual Flet Navigator.
   - `navigate(route: str, page: Page, args: tuple[Any]=None) -> None` - Navigate to specific route. Specify `args` to transfer arguments to other page.
   - `navigate_homepage(page: Page, args: tuple[Any]=None) -> None` - Navigate to homepage.
   - `render(page: Page, args: tuple[Any]=None) -> None` - Render current route. If there is no route like that throw ROUTE-404 (if specified). Should be called only one time.
@@ -153,11 +153,11 @@ app(target=main)
   - `routes: Routes = {}` - Registered routes.
   - `routes_data: dict[str, Any] = {}` - Routes data.
   - `homepage: str = '/'` - Homepage (main page).
-  - `fade_effect: bool = True` - Use fade effect when switching pages? BETA.
+  - `navigator_animation: NavigatorAnimation = NavigatorAnimation()` - Page switch animation.
   - `appbars: dict[int, Control] = {}` - Dictionary of appbars for each page (ID).
   - `route_changed_handler: RouteChangedHandler = None` - Route changed handler.<br><br>
 
-  - `__init__(page: Page, routes: dict[str, Callable[[Page, 'VirtualFletNavigator', tuple[Any], str], None]], route_changed_handler: Callable[[str], None]=None) -> None` - Initialize Flet Navigator.
+  - `__init__(page: Page, routes: dict[str, Callable[[Page, 'VirtualFletNavigator', tuple[Any], str], None]], route_changed_handler: Callable[[str], None]=None, navigator_animation: NavigatorAnimation=NavigatorAnimation()) -> None` - Initialize Flet Navigator.
   - `navigate(route: str, page: Page, args: tuple[Any]=None) -> None` - Navigate to specific route. Specify `args` to transfer arguments to other page.
   - `navigate_homepage(page: Page, args: tuple[Any]=None) -> None` - Navigate to homepage (main page).
   - `render(page: Page, args: tuple[Any]=None, route_parameters: dict[str, Any]={}) -> None` - Render current route. If there is no route like that throw ROUTE-404 (if specified). Should be called only one time.
