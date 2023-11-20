@@ -4,18 +4,18 @@ from flet import Page, Control
 
 from time import sleep
 
-from typing import Callable, Any
-
 from warnings import warn_explicit
 
 from re import compile as re_compile
 
 from importlib import import_module
 
-from typing import Union
+from typing import Union, Callable, Any
 
 
-FLET_NAVIGATOR_VERSION: str = '2.3.5'
+_pre_def_routes: 'Routes' = {}
+
+FLET_NAVIGATOR_VERSION: str = '2.4.5'
 """Flet Navigator Version."""
 
 ROUTE_404: str = 'ROUTE-404'
@@ -28,6 +28,127 @@ URL_FN_SPACE_CHARACTER: str = '_$urlspace_'
 def get_page_widgets(page: Page) -> list[Control]:
     """Get page widgets."""
     return page._get_children()[0]._get_children()
+
+
+class NavigatorAnimation:
+    NONE: int = 0
+    """None animation."""
+
+    FADE: int = 1
+    """Fade out animation."""
+
+    SCALE: int = 2
+    """Scale out animation."""
+
+    ROTATE: int = 3
+    """Rotate out animation."""
+
+    SMOOTHNESS_1: list[float] = [0.9, 0.0]
+    """Smoothness level 1."""
+
+    SMOOTHNESS_2: list[float] = [0.9, 0.8, 0.0]
+    """Smoothness level 2."""
+
+    SMOOTHNESS_3: list[float] = [0.9, 0.8, 0.7, 0.0]
+    """Smoothness level 3."""
+
+    SMOOTHNESS_4: list[float] = [0.9, 0.8, 0.7, 0.6, 0.0]
+    """Smoothness level 4."""
+
+    SMOOTHNESS_5: list[float] = [0.9, 0.8, 0.7, 0.6, 0.5, 0.0]
+    """Smoothness level 5."""
+
+    SMOOTHNESS_6: list[float] = [0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.0]
+    """Smoothness level 6."""
+
+    SMOOTHNESS_7: list[float] = [0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.0]
+    """Smoothness level 7."""
+
+    SMOOTHNESS_8: list[float] = [0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.0]
+    """Smoothness level 8."""
+
+    SMOOTHNESS_9: list[float] = [0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.0]
+    """Smoothness level 9."""
+
+    SMOOTHNESS_10: list[float] = [1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.0]
+    """Smoothness level 10."""
+
+    animation: int = FADE
+    """Selected animation."""
+
+    smoothness: list[float] = SMOOTHNESS_9
+    """Animation smoothness."""
+
+    delay: float = 0.01
+    """Animation delay."""
+
+    optimized_delay: float = 0.001
+    """Animation optimized delay (when too much controls on the page)."""
+
+    optimization_threshold: int = 5
+    """Optimization threshold (maximal amount of controls that force optimized delay using instead of simple delay)."""
+
+    def __init__(self, animation: int=FADE, smoothness: list[float]=SMOOTHNESS_9, delay: float=0.01, optimized_delay: float=0.001, optimization_threshold: int=5) -> None:
+        """Initialize navigator animation."""
+        self.animation = animation
+        self.smoothness = smoothness
+
+        self.delay = delay
+        self.optimized_delay = optimized_delay
+
+        self.optimization_threshold = optimization_threshold
+
+    def animate_out(self, page: Page, page_widgets: list[Control]) -> None:
+        """Play out animation."""
+        delay = self.delay
+
+        if len(page_widgets) > self.optimization_threshold:
+            delay = self.optimized_delay
+
+        if self.animation == self.FADE:
+            for control in page_widgets:
+                for opacity in self.smoothness:
+                    control.opacity = opacity
+
+                    page.update()
+
+                    sleep(delay)
+
+            page.clean()
+
+        elif self.animation == self.SCALE:
+            for control in page_widgets:
+                for scale in self.smoothness:
+                    control.scale = scale
+
+                    page.update()
+
+                    sleep(delay)
+
+            page.clean()
+
+        elif self.animation == self.ROTATE:
+            for control in page_widgets:
+                rotation_smoothness = (len(self.SMOOTHNESS_10) - len(self.smoothness)) + 1
+
+                rotation_smoothness = rotation_smoothness // 2 if rotation_smoothness >= 2 else rotation_smoothness
+
+                for angle, scale in zip(range(0, 90, rotation_smoothness), self.smoothness):
+                    if scale <= 0.0:
+                        break
+
+                    control.rotate = angle
+
+                    control.scale = scale - 0.1
+
+                    page.update()
+
+                    sleep(delay)
+
+            page.clean()
+
+        else:
+            page.clean()
 
 
 Arguments = tuple[Any]
@@ -104,8 +225,8 @@ class VirtualFletNavigator:
     homepage: str = '/'
     """Homepage route."""
 
-    fade_effect: bool = True
-    """Add fade out to all page widgets before rendering another page. BETA!"""
+    navigator_animation: NavigatorAnimation = NavigatorAnimation()
+    """Page switch animation."""
 
     appbars: dict[int, Control] = {}
     """Dictionary of appbars for each page ID."""
@@ -117,7 +238,7 @@ class VirtualFletNavigator:
 
     _nav_route_simple_re: str = r'^[a-zA-Z_]\w*$'
 
-    def __init__(self, routes: Routes, route_changed_handler: RouteChangedHandler=None, fade_effect: bool=True) -> None:
+    def __init__(self, routes: Routes, route_changed_handler: RouteChangedHandler=None, navigator_animation: NavigatorAnimation=NavigatorAnimation()) -> None:
         """Initialize Virtual Flet Navigator."""
         self.routes = routes
 
@@ -141,7 +262,10 @@ class VirtualFletNavigator:
         for route in self.routes:
             self.routes_data[route] = None
 
-        self.fade_effect = fade_effect
+        self.navigator_animation = navigator_animation
+
+        for route in _pre_def_routes:
+            self.routes[route] = _pre_def_routes[route]
 
     def navigate(self, route: str, page: Page, args: Arguments=None) -> None:
         """Navigate to specific route."""
@@ -191,26 +315,7 @@ class VirtualFletNavigator:
         else:
             for route in self.routes:
                 if self.route == route:
-                    if self.fade_effect:
-                        page_widgets = get_page_widgets(page)
-
-                        delay = 0.1
-
-                        if len(page_widgets) >= 10:
-                            delay = 0.01
-
-                        for control in page_widgets:
-                            for opacity in [0.5, 0]:                                
-                                control.opacity = opacity
-
-                                page.update()
-
-                                sleep(delay)
-
-                        page.clean()
-
-                    else:
-                        page.clean()
+                    self.navigator_animation.animate_out(page, get_page_widgets(page))
 
                     page_id = list(self.routes.keys()).index(route) + 1
 
@@ -275,8 +380,8 @@ class FletNavigator:
     homepage: str = '/'
     """Homepage route."""
 
-    fade_effect: bool = True
-    """Add fade out to all page widgets before rendering another page. BETA!"""
+    navigator_animation: NavigatorAnimation = NavigatorAnimation()
+    """Page switch animation."""
 
     appbars: dict[int, Control] = {}
     """Dictionary of appbars for each page ID."""
@@ -293,7 +398,7 @@ class FletNavigator:
 
     _nav_is_float_re: str = r'^-?\d+\.\d+$'
 
-    def __init__(self, page: Page, routes: Routes, route_changed_handler: RouteChangedHandler=None, fade_effect: bool=True) -> None:
+    def __init__(self, page: Page, routes: Routes, route_changed_handler: RouteChangedHandler=None, navigator_animation: NavigatorAnimation=NavigatorAnimation()) -> None:
         """Initialize Virtual Flet Navigator."""
         self.page = page
 
@@ -321,7 +426,10 @@ class FletNavigator:
 
         self.page.on_route_change = self._nav_route_change_handler
 
-        self.fade_effect = fade_effect
+        self.navigator_animation = navigator_animation
+
+        for route in _pre_def_routes:
+            self.routes[route] = _pre_def_routes[route]
 
     def navigate(self, route: str, page: Page, args: Arguments=None) -> None:
         """Navigate to specific route."""
@@ -365,26 +473,7 @@ class FletNavigator:
         else:
             for route in self.routes:
                 if self.route == route:
-                    if self.fade_effect:
-                        page_widgets = get_page_widgets(page)
-
-                        delay = 0.1
-
-                        if len(page_widgets) >= 10:
-                            delay = 0.01
-
-                        for control in page_widgets:
-                            for opacity in [0.5, 0]:                                
-                                control.opacity = opacity
-
-                                page.update()
-
-                                sleep(delay)
-
-                        page.clean()
-
-                    else:
-                        page.clean()
+                    self.navigator_animation.animate_out(page, get_page_widgets(page))
 
                     page_id = list(self.routes.keys()).index(route) + 1
 
@@ -492,6 +581,14 @@ class FletNavigator:
         self.render(self.page, self._nav_temp_args, parameters)
 
         self._nav_temp_args = None
+
+
+def route(route_name: str) -> Any:
+    """Link route to last initialized navigator."""
+    def _route_decorator(page_definition: PageDefinition):
+        _pre_def_routes[route_name] = page_definition
+
+    return _route_decorator
 
 
 def define_page(path: str, name: str=None) -> PageDefinition:
