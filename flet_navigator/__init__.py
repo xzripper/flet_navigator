@@ -31,6 +31,8 @@ def get_page_widgets(page: Page) -> list[Control]:
 
 
 class NavigatorAnimation:
+    """Class for implementing animations between page change."""
+
     NONE: int = 0
     """None animation."""
 
