@@ -1,4 +1,4 @@
-<h1 align="center">FletNavigator v2.3.5 Documentation.</h1>
+<h1 align="center">FletNavigator v2.4.5 Documentation.</h1>
 
 <h4 align="center">Menu:</h4>
 
@@ -7,6 +7,8 @@
 - [`VirtualFletNavigator`](#virtualfletnavigator)
 - [`FletNavigator`](#fletnavigator)
 - [`PageData`](#pagedata)
+- [`NavigatorAnimation`](#navigatoranimation)
+- [`route`](#route)
 - [`define_page`](#define_page)
 - [`template`](#template)
 - [Summary.](#summary)
@@ -33,7 +35,7 @@ Installation is quite easy: ```pip install flet_navigator```
   - **✨ And more! And even more coming in future!**
 
 **FletNavigator TODO**:
-  - **Animations between page change. (50%).**
+  - **NO TODO...**
 
 **FletNavigator Known Bugs**:
   - **No known bugs...**
@@ -105,20 +107,20 @@ Homepage is main page, that you can set with `set_homepage`, and navigate with `
   - `navigate(route: str, page: Page, args: tuple[Any]=None) -> None` - Navigate to specific route. Specify `args` to transfer arguments to other page.
   - `navigate_homepage(page: Page, args: tuple[Any]=None) -> None` - Navigate to homepage.
   - `render(page: Page, args: tuple[Any]=None) -> None` - Render current route. If there is no route like that throw ROUTE-404 (if specified). Should be called only one time.
-  - `set_route_data(self, route: str, data: Any) -> int` - Set route data (cookies-like mechanism). Returns success/fail. More <a href="github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>.
-  - `get_route_data(self, route: str) -> Any` - Get route data. More <a href="github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>.
-  - `set_homepage(self, homepage: str) -> None` - Set homepage (main page). More <a href="github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>.
+  - `set_route_data(self, route: str, data: Any) -> int` - Set route data (cookies-like mechanism). Returns success/fail. More <a href="https://github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>.
+  - `get_route_data(self, route: str) -> Any` - Get route data. More <a href="https://github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>.
+  - `set_homepage(self, homepage: str) -> None` - Set homepage (main page). More <a href="https://github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>.
 
 Using example:
 
 ```python
-from flet import app, Page
+from flet import app, Page, Text
 
 from flet_navigator import VirtualFletNavigator, PageData, ROUTE_404
 
 
 def main_page(pg: PageData) -> None:
-    ... # Main page content.
+    pg.page.add(Text('Main page!'))
 
 def second_page(pg: PageData) -> None:
     ... # Second page content.
@@ -159,20 +161,20 @@ app(target=main)
   - `navigate(route: str, page: Page, args: tuple[Any]=None) -> None` - Navigate to specific route. Specify `args` to transfer arguments to other page.
   - `navigate_homepage(page: Page, args: tuple[Any]=None) -> None` - Navigate to homepage (main page).
   - `render(page: Page, args: tuple[Any]=None, route_parameters: dict[str, Any]={}) -> None` - Render current route. If there is no route like that throw ROUTE-404 (if specified). Should be called only one time.
-  - `set_route_data(route: str, data: Any) -> int` - Set route data (cookies-like mechanism). Returns success/fail. More <a href="github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>.
-  - `get_route_data(route: str) -> Any` - Get route data. More <a href="github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>.
-  - `set_homepage(homepage: str) -> None` - Set homepage (main page). More <a href="github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>.
+  - `set_route_data(route: str, data: Any) -> int` - Set route data (cookies-like mechanism). Returns success/fail. More <a href="https://github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>.
+  - `get_route_data(route: str) -> Any` - Get route data. More <a href="https://github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>.
+  - `set_homepage(homepage: str) -> None` - Set homepage (main page). More <a href="https://github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>.
 
 Using example:
 
 ```python
-from flet import app, Page, WEB_BROWSER
+from flet import app, Page, Text, WEB_BROWSER
 
 from flet_navigator import FletNavigator ROUTE_404
 
 
 def main_page(pg: PageData) -> None:
-    ... # Main page content.
+    pg.page.add(Text('Main page!'))
 
 def second_page(pg: PageData) -> None:
     ... # Second page content.
@@ -208,7 +210,61 @@ app(target=main, view=WEB_BROWSER) # Non-Virtual Navigator recommended in web.
   - `parameters: dict[str, Any] = None` - URL parameters. (Always `None` if `VirtualFletNavigator` used).
   - `page_id: int = None` - Page ID.<br><br>
 
-  - `set_appbar(appbar: Control) -> None` - Set appbar for current page. More <a href="github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>.
+  - `set_appbar(appbar: Control) -> None` - Set appbar for current page. More <a href="https://github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>.
+
+<hr>
+
+<h3 align="center"><code>NavigatorAnimation</code></h3>
+
+Class added in `V2.4.5` for implementing animation between page change. Example:
+
+```python
+from flet_navigator import NavigatorAnimation
+
+def main(page: Page) -> None:
+    navigator = FletNavigator({}, navigator_animation=NavigatorAnimation(NavigatorAnimation.SCALE))
+```
+
+<br>
+
+- `NavigatorAnimation` - Class for implementing animations between page change.
+  - `__init__(animation: int=FADE, smoothness: list[float]=SMOOTHNESS_9, delay: float=0.01, optimized_delay: float=0.001, optimization_threshold: int=5) -> None` - Initialize navigator animation.<br><br>
+
+  - `NONE: int = 0` - None animation.
+  - `FADE: int = 1` - Fade animation.
+  - `SCALE: int = 2` - Scale animation.
+  - `ROTATE: int = 3` - Rotate animation.
+  - `SMOOTHNESS_1: list[float] = [0.9, 0.0]` - Smoothness level 1.
+  - `SMOOTHNESS_2: list[float] = [0.9, 0.8, 0.0]` - Smoothness level 2.
+  - `SMOOTHNESS_3: list[float] = [0.9, 0.8, 0.7, 0.0]` - Smoothness level 3.
+  - `SMOOTHNESS_4: list[float] = [0.9, 0.8, 0.7, 0.6, 0.0]` - Smoothness level 4.
+  - `SMOOTHNESS_5: list[float] = [0.9, 0.8, 0.7, 0.6, 0.5, 0.0]` - Smoothness level 5.
+  - `SMOOTHNESS_6: list[float] = [0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.0]` - Smoothness level 6.
+  - `SMOOTHNESS_7: list[float] = [0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.0]` - Smoothness level 7.
+  - `SMOOTHNESS_8: list[float] = [0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.0]` - Smoothness level 8.
+  - `SMOOTHNESS_9: list[float] = [0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.0]` - Smoothness level 9.
+  - `SMOOTHNESS_10: list[float] = [1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.0]` - Smoothness level 10.
+  - `animation: int = FADE` - Selected animation.
+  - `smoothness: list[float] = SMOOTHNESS_9` - Animation smoothness.
+  - `delay: float = 0.01` - Animation delay.
+  - `optimized_delay: float = 0.001` - Animation optimized delay (when a lot of controls on the page).
+  - `optimization_threshold: int = 5` - Optimization threshold (maximal amount of controls that force optimized delay using instead of simple delay).<br><br>
+
+  - `animate_out(page: Page, page_widgets: list[Control]) -> None` - Play out animation. Basically shouldn't be called by user.
+
+<hr>
+
+<h3 align="center"><code>route</code></h3>
+
+`route` added in `V2.4.5` and used to specify routes using decorator. Example:
+```
+@route('/')
+def main_page(pg: PageData) -> None:
+    ...
+
+def main(page: Page) -> None:
+    navigator = FletNavigator({}) # Routes = {'/': main_page} / Supported for VirtualFletNavigator.
+```
 
 <hr>
 
@@ -216,7 +272,7 @@ app(target=main, view=WEB_BROWSER) # Non-Virtual Navigator recommended in web.
 
 ```define_page(path: str, name: str=None) -> PageDefinition```
 
-Used to import page from other file. More <a href="github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>. Example:<br><br>
+Used to import page from other file. More <a href="https://github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>. Example:<br><br>
 
 `second_page.py`
 
@@ -268,7 +324,7 @@ define_page('second_page', 'my_second_page_name') # => my_second_page_name
 
 ```template(template_definition: TemplateDefinition, page_data: PageData, arguments: Arguments=None) -> Union[Control, None]```
 
-Used to render template. More <a href="github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>. Example:<br>
+Used to render template. More <a href="https://github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>. Example:<br>
 
 ```python
 def go_to_button(pg: PageData, args: Arguments) -> None:
@@ -289,4 +345,4 @@ Summary! Now you know difference between virtual and non-virtual navigator, how 
 
 <hr>
 
-<p align="center"><b><i>FletNavigator V2.3.5</i></b></p>
+<p align="center"><b><i>FletNavigator V2.4.5</i></b></p>
