@@ -307,9 +307,9 @@ class VirtualFletNavigator:
 
         self.render(page, args)
 
-    def navigate_homepage(self, page: Page, args: Arguments=None) -> None:
+    def navigate_homepage(self, page: Page, args: Arguments=None, parameters: dict=None) -> None:
         """Navigate homepage."""
-        self.navigate(self.homepage, page, args)
+        self.navigate(self.homepage, page, args, parameters)
 
     def render(self, page: Page, args: Arguments=None) -> None:
         """Render current route. If there is no route like that throw ROUTE-404 (if specified)."""
