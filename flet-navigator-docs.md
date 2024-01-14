@@ -1,4 +1,4 @@
-<h1 align="center">FletNavigator v2.4.5 Documentation.</h1>
+<h1 align="center">FletNavigator v2.5.5 Documentation.</h1>
 
 <h4 align="center">Menu:</h4>
 
@@ -38,7 +38,7 @@ Installation is quite easy: ```pip install flet_navigator```
   - **NO TODO...**
 
 **FletNavigator Known Bugs**:
-  - **No known bugs...**
+  - **No flexible support for widgets like `AppBar` and others.**
 
 <hr>
 
@@ -103,7 +103,7 @@ Homepage is main page, that you can set with `set_homepage`, and navigate with `
   - `appbars: dict[int, Control] = {}` - Dictionary of appbars for each page (ID).
   - `route_changed_handler: RouteChangedHandler = None` - Route changed handler.<br><br>
 
-  - `__init__(routes: dict[str, Callable[[Page, 'VirtualFletNavigator', tuple[Any], str], None]], route_changed_handler: Callable[[str], None]=None, navigator_animation: NavigatorAnimation=NavigatorAnimation()) -> None` - Initialize Virtual Flet Navigator.
+  - `__init__(routes: Routes={}, route_changed_handler: Callable[[str], None]=None, navigator_animation: NavigatorAnimation=NavigatorAnimation()) -> None` - Initialize Virtual Flet Navigator.
   - `navigate(route: str, page: Page, args: tuple[Any]=None) -> None` - Navigate to specific route. Specify `args` to transfer arguments to other page.
   - `navigate_homepage(page: Page, args: tuple[Any]=None) -> None` - Navigate to homepage.
   - `render(page: Page, args: tuple[Any]=None) -> None` - Render current route. If there is no route like that throw ROUTE-404 (if specified). Should be called only one time.
@@ -157,9 +157,9 @@ app(target=main)
   - `appbars: dict[int, Control] = {}` - Dictionary of appbars for each page (ID).
   - `route_changed_handler: RouteChangedHandler = None` - Route changed handler.<br><br>
 
-  - `__init__(page: Page, routes: dict[str, Callable[[Page, 'VirtualFletNavigator', tuple[Any], str], None]], route_changed_handler: Callable[[str], None]=None, navigator_animation: NavigatorAnimation=NavigatorAnimation()) -> None` - Initialize Flet Navigator.
-  - `navigate(route: str, page: Page, args: tuple[Any]=None) -> None` - Navigate to specific route. Specify `args` to transfer arguments to other page.
-  - `navigate_homepage(page: Page, args: tuple[Any]=None) -> None` - Navigate to homepage (main page).
+  - `__init__(page: Page, routes: Routes={}, route_changed_handler: Callable[[str], None]=None, navigator_animation: NavigatorAnimation=NavigatorAnimation()) -> None` - Initialize Flet Navigator.
+  - `navigate(route: str, page: Page, args: tuple[Any]=None, parameters: dict=None) -> None` - Navigate to specific route. Specify `args` to transfer arguments to other page.
+  - `navigate_homepage(page: Page, args: tuple[Any]=None, parameters: dict=None) -> None` - Navigate to homepage (main page).
   - `render(page: Page, args: tuple[Any]=None, route_parameters: dict[str, Any]={}) -> None` - Render current route. If there is no route like that throw ROUTE-404 (if specified). Should be called only one time.
   - `set_route_data(route: str, data: Any) -> int` - Set route data (cookies-like mechanism). Returns success/fail. More <a href="https://github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>.
   - `get_route_data(route: str) -> Any` - Get route data. More <a href="https://github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>.
@@ -211,6 +211,7 @@ app(target=main, view=WEB_BROWSER) # Non-Virtual Navigator recommended in web.
   - `page_id: int = None` - Page ID.<br><br>
 
   - `set_appbar(appbar: Control) -> None` - Set appbar for current page. More <a href="https://github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>.
+  - `add(self, *controls: Control) -> None` - Append control(s) to page. Works as same as `Page.add`.
 
 <hr>
 
@@ -233,7 +234,8 @@ def main(page: Page) -> None:
   - `NONE: int = 0` - None animation.
   - `FADE: int = 1` - Fade animation.
   - `SCALE: int = 2` - Scale animation.
-  - `ROTATE: int = 3` - Rotate animation.
+  - `SHRINK: int = 3` - Shrink animation.
+  - `ROTATE: int = 4` - Rotate animation.
   - `SMOOTHNESS_1: list[float] = [0.9, 0.0]` - Smoothness level 1.
   - `SMOOTHNESS_2: list[float] = [0.9, 0.8, 0.0]` - Smoothness level 2.
   - `SMOOTHNESS_3: list[float] = [0.9, 0.8, 0.7, 0.0]` - Smoothness level 3.
@@ -263,7 +265,7 @@ def main_page(pg: PageData) -> None:
     ...
 
 def main(page: Page) -> None:
-    navigator = FletNavigator({}) # Routes = {'/': main_page} / Supported for VirtualFletNavigator.
+    navigator = FletNavigator() # Routes = {'/': main_page} / Supported for VirtualFletNavigator.
 ```
 
 <hr>
@@ -345,4 +347,4 @@ Summary! Now you know difference between virtual and non-virtual navigator, how 
 
 <hr>
 
-<p align="center"><b><i>FletNavigator V2.4.5</i></b></p>
+<p align="center"><b><i>FletNavigator V2.5.5</i></b></p>
