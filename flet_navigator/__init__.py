@@ -1,6 +1,6 @@
 """Navigator for Flet."""
 
-from flet import Page, Control
+from flet import Page, Control, Scale
 
 from time import sleep
 
@@ -15,7 +15,8 @@ from typing import Union, Callable, Any
 
 _pre_def_routes: 'Routes' = {}
 
-FLET_NAVIGATOR_VERSION: str = '2.4.5'
+
+FLET_NAVIGATOR_VERSION: str = '2.5.5'
 """Flet Navigator Version."""
 
 ROUTE_404: str = 'ROUTE-404'
@@ -42,7 +43,10 @@ class NavigatorAnimation:
     SCALE: int = 2
     """Scale out animation."""
 
-    ROTATE: int = 3
+    SHRINK: int = 3
+    """Shrink (width) out animation."""
+
+    ROTATE: int = 4
     """Rotate out animation."""
 
     SMOOTHNESS_1: list[float] = [0.9, 0.0]
@@ -129,6 +133,17 @@ class NavigatorAnimation:
 
             page.clean()
 
+        elif self.animation == self.SHRINK:
+            for control in page_widgets:
+                for width in self.smoothness:
+                    control.scale = Scale(scale_x=width, scale_y=1)
+
+                    page.update()
+
+                    sleep(delay)
+
+            page.clean()
+
         elif self.animation == self.ROTATE:
             for control in page_widgets:
                 rotation_smoothness = (len(self.SMOOTHNESS_10) - len(self.smoothness)) + 1
@@ -192,11 +207,18 @@ class PageData:
 
         self.page_id = page_id
 
+    def add(self, *controls: Control) -> None:
+        """Append control(s) to page."""
+        self.page.add(*controls)
+
     def set_appbar(self, appbar: Control) -> None:
         """Set appbar for this page (ID)."""
         self.page.appbar = appbar
 
         self.navigator.appbars[self.page_id] = appbar
+
+    def __repr__(self) -> str:
+        return f'{self.previous_page} -> {self.navigator.route} [{"NO-ARGUMENTS" if not self.arguments else self.arguments}, {"NO-PARAMETERS" if len(self.parameters) <= 0 else self.parameters}] ({self.page_id}) (NAVIGATOR-OBJECT {self.navigator})'
 
 
 PageDefinition = Callable[[PageData], None]
@@ -240,7 +262,7 @@ class VirtualFletNavigator:
 
     _nav_route_simple_re: str = r'^[a-zA-Z_]\w*$'
 
-    def __init__(self, routes: Routes, route_changed_handler: RouteChangedHandler=None, navigator_animation: NavigatorAnimation=NavigatorAnimation()) -> None:
+    def __init__(self, routes: Routes={}, route_changed_handler: RouteChangedHandler=None, navigator_animation: NavigatorAnimation=NavigatorAnimation()) -> None:
         """Initialize Virtual Flet Navigator."""
         self.routes = routes
 
@@ -400,7 +422,7 @@ class FletNavigator:
 
     _nav_is_float_re: str = r'^-?\d+\.\d+$'
 
-    def __init__(self, page: Page, routes: Routes, route_changed_handler: RouteChangedHandler=None, navigator_animation: NavigatorAnimation=NavigatorAnimation()) -> None:
+    def __init__(self, page: Page, routes: Routes={}, route_changed_handler: RouteChangedHandler=None, navigator_animation: NavigatorAnimation=NavigatorAnimation()) -> None:
         """Initialize Virtual Flet Navigator."""
         self.page = page
 
@@ -433,7 +455,7 @@ class FletNavigator:
         for route in _pre_def_routes:
             self.routes[route] = _pre_def_routes[route]
 
-    def navigate(self, route: str, page: Page, args: Arguments=None) -> None:
+    def navigate(self, route: str, page: Page, args: Arguments=None, parameters: dict=None) -> None:
         """Navigate to specific route."""
         self._nav_previous_routes.append(self.route)
 
@@ -441,7 +463,11 @@ class FletNavigator:
 
         self.route = route
 
-        page.go(self.route)
+        if len(parameters) >= 1:
+            page.go(self.route + ('?' + '&'.join([f'{key}={value}' for key, value in parameters.items()])))
+
+        else:
+            page.go(self.route)
 
     def navigate_homepage(self, page: Page, args: Arguments=None) -> None:
         """Navigate homepage."""
@@ -569,8 +595,8 @@ class FletNavigator:
                 elif re_compile(self._nav_is_float_re).match(_parameter_parsed[1]):
                     parameters[_parameter_parsed[0]] = float(_parameter_parsed[1])
 
-                elif _parameter_parsed[1] in ['true', 'false']:
-                    parameters[_parameter_parsed[0]] = bool(_parameter_parsed[1])
+                elif _parameter_parsed[1].lower() in ['true', 'false']:
+                    parameters[_parameter_parsed[0]] = _parameter_parsed[1].lower() == 'true'
 
                 else:
                     parameters[_parameter_parsed[0]] = _parameter_parsed[1].replace(URL_FN_SPACE_CHARACTER, ' ')
