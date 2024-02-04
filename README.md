@@ -22,10 +22,8 @@ def route_404(pg: PageData) -> None:
    ... # 404 Page Content.
 
 def main(page: Page) -> None:
-   # Initialize navigator.
-   flet_navigator = VirtualFletNavigator()
-
-   flet_navigator.render(page) # Render current page.
+   # Initialize navigator and render page.
+   VirtualFletNavigator().render(page)
 
 app(target=main)
 ```
