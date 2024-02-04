@@ -1,4 +1,4 @@
-<h1 align="center">FletNavigator v2.5.5 Documentation.</h1>
+<h1 align="center">FletNavigator v2.6.5 Documentation.</h1>
 
 <h4 align="center">Menu:</h4>
 
@@ -21,7 +21,7 @@ FletNavigator - Simple and fast navigator (router) for Flet (Python) that allows
 Installation is quite easy: ```pip install flet_navigator```
 
 > [!WARNING]  
-> FletNavigator is in active development phase + only one developers works on this project. Please, be patient and report all bugs.
+> FletNavigator is in active development phase + only one developer works on this project. Please, be patient and report all bugs.
 
 **FletNavigator Features**:
   - **✨ Simple installation and very simple using.**
@@ -72,7 +72,7 @@ URL Parameters (`http://127.0.0.1:53863/second_page?id=123&etc=true`) will be re
 
 Route should have latin alphabet (no cyrillic), route can have underscores and digits. Route can't have special characters, cyrillic alphabet & spaces. Wrong route will be removed from registered routes.
 
-```flet_navigator::constructor:51: Warning: Wrong route name: "$my_route1У H". Allowed only digits and underscores.```
+```flet_navigator::constructor:302: Warning: Wrong route name: "$my_route1У H". Allowed only digits and underscores.```
 
 <br>
 
@@ -103,44 +103,41 @@ Homepage is main page, that you can set with `set_homepage`, and navigate with `
   - `appbars: dict[int, Control] = {}` - Dictionary of appbars for each page (ID).
   - `route_changed_handler: RouteChangedHandler = None` - Route changed handler.<br><br>
 
-  - `__init__(routes: Routes={}, route_changed_handler: Callable[[str], None]=None, navigator_animation: NavigatorAnimation=NavigatorAnimation()) -> None` - Initialize Virtual Flet Navigator.
-  - `navigate(route: str, page: Page, args: tuple[Any]=None) -> None` - Navigate to specific route. Specify `args` to transfer arguments to other page.
-  - `navigate_homepage(page: Page, args: tuple[Any]=None) -> None` - Navigate to homepage.
-  - `render(page: Page, args: tuple[Any]=None) -> None` - Render current route. If there is no route like that throw ROUTE-404 (if specified). Should be called only one time.
-  - `set_route_data(self, route: str, data: Any) -> int` - Set route data (cookies-like mechanism). Returns success/fail. More <a href="https://github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>.
-  - `get_route_data(self, route: str) -> Any` - Get route data. More <a href="https://github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>.
+  - `__init__(routes: Routes={}, route_changed_handler: RouteChangedHandler=None, navigator_animation: NavigatorAnimation=NavigatorAnimation()) -> None` - Initialize Virtual Flet Navigator.
+  - `navigate(route: str, page: Page, args: Arguments=None) -> None` - Navigate to specific route. Specify `args` to transfer arguments to other page.
+  - `navigate_homepage(page: Page, args: Arguments=None) -> None` - Navigate to homepage.
+  - `render(page: Page, args: Arguments=None) -> None` - Render current route. If there is no route like that throw ROUTE-404 (if specified). Should be called once.
+  - `set_route_data(route: str, data: Any) -> int` - Set route data (cookies-like mechanism). Returns success/fail. More <a href="https://github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>.
+  - `get_route_data(route: str) -> Any` - Get route data. More <a href="https://github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>.
   - `set_homepage(self, homepage: str) -> None` - Set homepage (main page). More <a href="https://github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>.
 
 Using example:
 
 ```python
-from flet import app, Page, Text
+from flet import app, Page, Text, FilledButton
 
-from flet_navigator import VirtualFletNavigator, PageData, ROUTE_404
+from flet_navigator import VirtualFletNavigator, PageData, ROUTE_404, route
 
 
+@route('/')
 def main_page(pg: PageData) -> None:
-    pg.page.add(Text('Main page!'))
+    pg.add(FilledButton('Navigate to second page.', on_click=lambda _: pg.navigator.navigate('second_page', pg.page)))
 
+@route('second_page')
 def second_page(pg: PageData) -> None:
     ... # Second page content.
 
-def route_404(pg: PageData) -> None:
-    ... # 404 Page Content.
+# Specify 404 page (since v2.6.5 it's optional).
+# @route(ROUTE_404)
+# def route_404(pg: PageData) -> None:
+#     ... # 404 Page Content.
 
+# Main function.
 def main(page: Page) -> None:
-    # Initialize navigator.
-    flet_navigator = VirtualFletNavigator(
-        {
-            '/': main_page, # Main page route.
-            'second_page': second_page, # Second page route.
-            ROUTE_404: route_404 # 404 page route.
-        }, lambda route: print(f'Route changed!: {route}') # Route change handler (optional).
-    )
+    # Initialize navigator and render page.
+    VirtualFletNavigator().render(page)
 
-    flet_navigator.render(page) # Render current page.
-
-app(target=main)
+app(main)
 ```
 
 <hr>
@@ -157,9 +154,9 @@ app(target=main)
   - `appbars: dict[int, Control] = {}` - Dictionary of appbars for each page (ID).
   - `route_changed_handler: RouteChangedHandler = None` - Route changed handler.<br><br>
 
-  - `__init__(page: Page, routes: Routes={}, route_changed_handler: Callable[[str], None]=None, navigator_animation: NavigatorAnimation=NavigatorAnimation()) -> None` - Initialize Flet Navigator.
-  - `navigate(route: str, page: Page, args: tuple[Any]=None, parameters: dict=None) -> None` - Navigate to specific route. Specify `args` to transfer arguments to other page.
-  - `navigate_homepage(page: Page, args: tuple[Any]=None, parameters: dict=None) -> None` - Navigate to homepage (main page).
+  - `__init__(page: Page, routes: Routes={}, route_changed_handler: RouteChangedHandler=None, navigator_animation: NavigatorAnimation=NavigatorAnimation()) -> None` - Initialize Flet Navigator.
+  - `navigate(route: str, page: Page, args: Arguments=None, parameters: dict=None) -> None` - Navigate to specific route. Specify `args` to transfer arguments to other page. Specify `parameters` to add URL parameters.
+  - `navigate_homepage(page: Page, args: Arguments=None, parameters: dict=None) -> None` - Navigate to homepage (main page).
   - `render(page: Page, args: tuple[Any]=None, route_parameters: dict[str, Any]={}) -> None` - Render current route. If there is no route like that throw ROUTE-404 (if specified). Should be called only one time.
   - `set_route_data(route: str, data: Any) -> int` - Set route data (cookies-like mechanism). Returns success/fail. More <a href="https://github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>.
   - `get_route_data(route: str) -> Any` - Get route data. More <a href="https://github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>.
@@ -168,34 +165,30 @@ app(target=main)
 Using example:
 
 ```python
-from flet import app, Page, Text, WEB_BROWSER
+from flet import app, Page, Text, FilledButton, WEB_BROWSER
 
-from flet_navigator import FletNavigator ROUTE_404
+from flet_navigator import FletNavigator, PageData, ROUTE_404, route
 
 
+@route('/')
 def main_page(pg: PageData) -> None:
-    pg.page.add(Text('Main page!'))
+    pg.add(FilledButton('Navigate to second page.', on_click=lambda _: pg.navigator.navigate('second_page', pg.page)))
 
+@route('second_page')
 def second_page(pg: PageData) -> None:
     ... # Second page content.
 
-def route_404(pg: PageData) -> None:
-    ... # 404 page content.
+# Specify 404 page (since v2.6.5 it's optional).
+# @route(ROUTE_404)
+# def route_404(pg: PageData) -> None:
+#     ... # 404 Page Content.
 
+# Main function.
 def main(page: Page) -> None:
-    # Initialize navigator.
-    flet_navigator = FletNavigator(page, # Specify page.
-        {
-            '/': main_page, # Main page route,
-            'second_page': second_page, # Second page route,
-            ROUTE_404: route_404 # 404 page route
-        }, lambda route: print(f'Route changed!: {route}') # Route change handler (optional).
-    )
+    # Initialize navigator and render page.
+    FletNavigator(page).render(page)
 
-    # Render current page.
-    flet_navigator.render(page)
-
-app(target=main, view=WEB_BROWSER) # Non-Virtual Navigator recommended in web.
+app(main, view=WEB_BROWSER)
 ```
 
 <hr>
@@ -259,7 +252,7 @@ def main(page: Page) -> None:
 <h3 align="center"><code>route</code></h3>
 
 `route` added in `V2.4.5` and used to specify routes using decorator. Example:
-```
+```python
 @route('/')
 def main_page(pg: PageData) -> None:
     ...
@@ -347,4 +340,4 @@ Summary! Now you know difference between virtual and non-virtual navigator, how 
 
 <hr>
 
-<p align="center"><b><i>FletNavigator V2.5.5</i></b></p>
+<p align="center"><b><i>FletNavigator V2.6.5</i></b></p>
