@@ -2,9 +2,9 @@
 
 from flet import Page, Control, Scale, Text, TextButton
 
-from warnings import warn_explicit
-
 from time import sleep
+
+from warnings import warn_explicit
 
 from re import compile as re_compile
 
