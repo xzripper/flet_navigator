@@ -299,7 +299,7 @@ class VirtualFletNavigator:
                 if not re_compile(self._nav_route_simple_re).match(route):
                     warn_explicit(
                         f'Wrong route name: "{route}". Allowed only digits and underscores.', Warning,
-                        'flet_navigator::constructor', 303
+                        'flet_navigator::constructor', 302
                     )
 
                     routes_to_delete.append(route)
