@@ -6,7 +6,7 @@
 ```python
 from flet import app, Page, Text
 
-from flet_navigator import VirtualFletNavigator, route, PageData, ROUTE_404
+from flet_navigator import VirtualFletNavigator, PageData, ROUTE_404, route
 
 
 @route('/')
