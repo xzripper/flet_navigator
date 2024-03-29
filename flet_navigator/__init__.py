@@ -1,4 +1,4 @@
-"""Navigator for Flet."""
+"""Navigator for Flet.""""
 
 from flet import Page, Control, Scale, Text, TextButton
 
