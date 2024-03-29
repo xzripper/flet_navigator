@@ -1,38 +1,30 @@
-<h1 align="center">FletNavigator V2.<br><img src="https://img.shields.io/badge/V2.6.5-white?style=for-the-badge&logo=flutter&logoColor=red"> <img src="https://img.shields.io/github/issues/xzripper/flet_navigator?style=for-the-badge&color=red"> <img src="https://img.shields.io/github/issues-closed/xzripper/flet_navigator?style=for-the-badge&color=green"> <img src="https://img.shields.io/github/last-commit/xzripper/flet_navigator/main?style=for-the-badge&color=blue"></h1>
+<h1 align="center">FletNavigator V2.<br><img src="https://img.shields.io/badge/V2.7.5-white?style=for-the-badge&logo=flutter&logoColor=red"> <img src="https://img.shields.io/badge/STABLE-white?style=for-the-badge&logo=python&logoColor=black"> <img src="https://img.shields.io/badge/AWESOME%20FLET-white?style=for-the-badge&logo=adventofcode&logoColor=black"><br><img src="https://img.shields.io/github/issues/xzripper/flet_navigator?style=for-the-badge&color=white"> <img src="https://img.shields.io/github/issues-closed/xzripper/flet_navigator?style=for-the-badge&color=white"> <img src="https://img.shields.io/github/last-commit/xzripper/flet_navigator/main?style=for-the-badge&color=white"></h1>
 <p align="center"><img src="example2.gif" width=600><br><i>FletNavigator & <a href="https://github.com/xzripper/flet_restyle">FletReStyle</a>.</i></p>
-<p align="center">Simple and fast navigator (router) for Flet (Python) that allows you to create multi-page applications! [<code>pip install flet_navigator</code>].<br><b>[<a href="https://github.com/xzripper/flet_navigator/blob/main/flet-navigator-docs.md">DOCUMENTATION</a>].</b></p>
-<p align="center">Using Example:
+<p align="center">Simple and fast navigator (router) for Flet (Python) that allows you to create multi-page applications! [<code>pip install flet_navigator</code>].<br><br>Click for <b><a href="https://github.com/xzripper/flet_navigator/blob/main/flet-navigator-docs.md">documentation</a>.</b></p><br>
+<p align="center">Example:
 
 ```python
-from flet import app, Page, Text
+from flet import app, Text
 
-from flet_navigator import VirtualFletNavigator, PageData, ROUTE_404, route
+from flet_navigator import PageData, render, anon, route
 
 
 @route('/')
 def main_page(pg: PageData) -> None:
-   pg.add(Text('Main Page!')) # or pg.page.add
+    pg.add(Text('Main Page!')) # or `pg.page.add`.
 
 @route('second_page')
 def second_page(pg: PageData) -> None:
-   ... # Second page content.
+    ... # Second page content.
 
-@route(ROUTE_404)
-def route_404(pg: PageData) -> None:
-   ... # 404 Page Content.
-
-def main(page: Page) -> None:
-   # Initialize navigator and render page.
-   VirtualFletNavigator().render(page)
-
-app(target=main)
+app(anon(render))
 ```
 
-</p>
+</p><br>
 
-<p align="center"><img src="example.gif" width=500></p> <p align="center"><i>(Deprecated Example GIF).</i></p>
+<p align="center"><img src="example.gif" width=500></p> <p align="center"><i>(Old Example GIF).</i></p>
 
 See documentation <a href="https://github.com/xzripper/flet_navigator/blob/main/flet-navigator-docs.md">here</a>.
 
 <hr>
-<p align="center">FletNavigator v2.6.5.</p></i>
+<p align="center"><b>FletNavigator v2.7.5.</b></p>
