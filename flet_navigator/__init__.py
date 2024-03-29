@@ -701,6 +701,14 @@ def define_page(path: str, name: str=None) -> PageDefinition:
     return page
 
 
+def parameters(route: str, **_parameters: dict) -> str:
+    """Append route with parameters."""
+    if len(_parameters) >= 1:
+        return f'{route}?{"&".join(f"{key}={value}" for key, value in _parameters.items())}'
+
+    else:
+        return route
+
 def template(template_definition: Union[str, TemplateDefinition], page_data: PageData, arguments: Arguments=None) -> Union[Control, None]:
     """Render template."""
     if isinstance(template_definition, str):
