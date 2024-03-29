@@ -709,6 +709,7 @@ def parameters(route: str, **_parameters: dict) -> str:
     else:
         return route
 
+
 def template(template_definition: Union[str, TemplateDefinition], page_data: PageData, arguments: Arguments=None) -> Union[Control, None]:
     """Render template."""
     if isinstance(template_definition, str):
