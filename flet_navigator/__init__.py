@@ -746,6 +746,6 @@ def render(page: Page=None, routes: Routes={}, args: Arguments=None, parameters:
         FletNavigator(page, routes, route_changed_handler, navigator_animation).render(page, args, parameters)
 
 
-def anon(function: Callable, args: Arguments=(), **kwargs: dict) -> None:
+def anon(function: Callable, args: Arguments=(), **kwargs: dict) -> Callable:
     """Translate function into Flet anonymous (one-liner) function."""
     return lambda _: function(page=_, *args, **kwargs)
