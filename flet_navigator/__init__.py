@@ -2,20 +2,24 @@
 
 from flet import Page, Control, Scale, Text, TextButton
 
-from time import sleep
-
 from warnings import warn_explicit
 
 from re import compile as re_compile
 
 from importlib import import_module
 
+from time import sleep
+
 from typing import Union, Callable, Any
+
 
 _pre_def_routes: 'Routes' = {}
 
 
-FLET_NAVIGATOR_VERSION: str = '2.6.5'
+_global_templates: dict[str, 'TemplateDefinition'] = {}
+
+
+FLET_NAVIGATOR_VERSION: str = '2.7.5'
 """Flet Navigator Version."""
 
 ROUTE_404: str = 'ROUTE-404'
@@ -210,6 +214,22 @@ class PageData:
         """Append control(s) to page."""
         self.page.add(*controls)
 
+    def navigate(self, route: str, args: Arguments=None, parameters: dict[str, Any]=None) -> None:
+        """Navigate to specific route. Parameters aren't used if navigator is virtual."""
+        if self.navigator.virtual:
+            self.navigator.navigate(route, self.page, args)
+
+        else:
+            self.navigator.navigate(route, self.page, args, parameters)
+
+    def navigate_homepage(self, args: Arguments=None, parameters: dict[str, Any]=None) -> None:
+        """Navigate to homepage. Parameters aren't used if navigator is virtual."""
+        if self.navigator.virtual:
+            self.navigator.navigate_homepage(self.page, args)
+
+        else:
+            self.navigator.navigate_homepage(self.page, args, parameters)
+
     def set_appbar(self, appbar: Control) -> None:
         """Set appbar for this page (ID)."""
         self.page.appbar = appbar
@@ -217,6 +237,7 @@ class PageData:
         self.navigator.appbars[self.page_id] = appbar
 
     def __repr__(self) -> str:
+        """Represent PageData. Mostly used for debug."""
         return f'{self.previous_page} -> {self.navigator.route} [{"NO-ARGUMENTS" if not self.arguments else self.arguments}, {"NO-PARAMETERS" if len(self.parameters) <= 0 else self.parameters}] ({self.page_id}) (NAVIGATOR-OBJECT {self.navigator})'
 
 
@@ -231,6 +252,7 @@ RouteChangedHandler = Callable[[str], None]
 
 Routes = dict[str, PageDefinition]
 """Routes Type."""
+
 
 _DEFAULT_PAGE_404: PageDefinition = lambda pg: (
     globals().__setitem__('_PRE_H_A', pg.page.horizontal_alignment),
@@ -257,6 +279,7 @@ _DEFAULT_PAGE_404: PageDefinition = lambda pg: (
     pg.add(Text('Set your 404 page via ROUTE_404 (FletNavigator).', color='grey', size=10))
 )
 """Default Page 404."""
+
 
 class VirtualFletNavigator:
     """Flet Virtual Navigator Class."""
@@ -299,8 +322,7 @@ class VirtualFletNavigator:
                 if not re_compile(self._nav_route_simple_re).match(route):
                     warn_explicit(
                         f'Wrong route name: "{route}". Allowed only digits and underscores.', Warning,
-                        'flet_navigator::constructor', 302
-                    )
+                        'flet_navigator::constructor', 322)
 
                     routes_to_delete.append(route)
 
@@ -320,8 +342,7 @@ class VirtualFletNavigator:
         if '?' in route:
             warn_explicit(
                 'VirtualFletNavigator doesn\'t have URL parameters support. Consider using page arguments or FletNavigator.', Warning,
-                'flet_navigator::navigate', 324
-            )
+                'flet_navigator::navigate', 342)
 
             route = route.split('?')[0]
 
@@ -356,9 +377,7 @@ class VirtualFletNavigator:
 
                         self._nav_previous_routes[-1] if len(self._nav_previous_routes) >= 1 else None,
 
-                        {}, 404
-                    )
-                )
+                        {}, 404))
 
             else:
                 page.clean()
@@ -371,8 +390,7 @@ class VirtualFletNavigator:
 
                     self._nav_previous_routes[-1] if len(self._nav_previous_routes) >= 1 else None,
 
-                    {}, 404
-                ))
+                    {}, 404))
 
         else:
             for route in self.routes:
@@ -393,9 +411,7 @@ class VirtualFletNavigator:
 
                             self._nav_previous_routes[-1] if len(self._nav_previous_routes) >= 1 else '/',
 
-                            {}, page_id
-                        )
-                    )
+                            {}, page_id))
 
                     page.update()
 
@@ -423,6 +439,12 @@ class VirtualFletNavigator:
     def set_homepage(self, homepage: str) -> None:
         """Set homepage."""
         self.homepage = homepage
+
+    @property
+    def virtual(self) -> bool:
+        """Is navigator virtual? (True)."""
+        return True
+
 
 class FletNavigator:
     """Flet Navigator Class."""
@@ -475,8 +497,7 @@ class FletNavigator:
                 if not re_compile(self._nav_route_simple_re).match(route):
                     warn_explicit(
                         f'Wrong route name: "{route}". Allowed only digits and underscores.', Warning,
-                        'flet_navigator::constructor', 479
-                    )
+                        'flet_navigator::constructor', 497)
 
                     routes_to_delete.append(route)
 
@@ -493,7 +514,7 @@ class FletNavigator:
         for route in _pre_def_routes:
             self.routes[route] = _pre_def_routes[route]
 
-    def navigate(self, route: str, page: Page, args: Arguments=None, parameters: dict=None) -> None:
+    def navigate(self, route: str, page: Page, args: Arguments=None, parameters: dict[str, Any]=None) -> None:
         """Navigate to specific route."""
         self._nav_previous_routes.append(self.route)
 
@@ -503,7 +524,7 @@ class FletNavigator:
 
         page.go(self.route + ('?' + '&'.join([f'{key}={value}' for key, value in parameters.items()])) if parameters and len(parameters) >= 1 else self.route)
 
-    def navigate_homepage(self, page: Page, args: Arguments=None, parameters: dict=None) -> None:
+    def navigate_homepage(self, page: Page, args: Arguments=None, parameters: dict[str, Any]=None) -> None:
         """Navigate homepage."""
         self.navigate(self.homepage, page, args, parameters)
 
@@ -528,9 +549,7 @@ class FletNavigator:
 
                         self._nav_previous_routes[-1] if len(self._nav_previous_routes) >= 1 else None,
 
-                        route_parameters, 404
-                    )
-                )
+                        route_parameters, 404))
 
             else:
                 page.clean()
@@ -543,8 +562,7 @@ class FletNavigator:
 
                     self._nav_previous_routes[-1] if len(self._nav_previous_routes) >= 1 else None,
 
-                    {}, 404
-                ))
+                    {}, 404))
 
         else:
             for route in self.routes:
@@ -565,8 +583,7 @@ class FletNavigator:
 
                             self._nav_previous_routes[-1] if len(self._nav_previous_routes) >= 1 else '/',
 
-                            route_parameters, page_id)
-                    )
+                            route_parameters, page_id))
 
                     page.update()
 
@@ -624,16 +641,14 @@ class FletNavigator:
                 if len(_parameter_parsed) <= 1:
                     warn_explicit(
                         f'Unable to parse route parameters ({_parameters_list.index(_parameter)}).', Warning,
-                        'flet_navigator::RouteChangeHandler', 628
-                    )
+                        'flet_navigator::RouteChangeHandler', 641)
 
                     continue
 
                 if not _parameter_parsed[0].isalpha():
                     warn_explicit(
                         f'Unable to parse route parameters ({_parameters_list.index(_parameter)}): key should be string.', Warning,
-                        'flet_navigator::RouteChangeHandler', 636
-                    )
+                        'flet_navigator::RouteChangeHandler', 648)
 
                     continue
 
@@ -658,10 +673,15 @@ class FletNavigator:
 
         self._nav_temp_args = None
 
+    @property
+    def virtual(self) -> bool:
+        """Is navigator virtual? (False)."""
+        return False
+
 
 def route(route_name: str) -> Any:
     """Link route to last initialized navigator."""
-    def _route_decorator(page_definition: PageDefinition):
+    def _route_decorator(page_definition: PageDefinition) -> None:
         _pre_def_routes[route_name] = page_definition
 
     return _route_decorator
@@ -676,12 +696,47 @@ def define_page(path: str, name: str=None) -> PageDefinition:
     try:
         page = getattr(import_module(path), path.split('.')[-1] if not name else name)
     except AttributeError:
-        warn_explicit(f'Unable to define page: "{path}".', Warning, 'flet_navigator::define_page', 680)
+        warn_explicit(f'Unable to define page: "{path}".', Warning, 'flet_navigator::define_page', 697)
 
     return page
 
 
-def template(template_definition: TemplateDefinition, page_data: PageData, arguments: Arguments=None) -> Union[Control, None]:
+def template(template_definition: Union[str, TemplateDefinition], page_data: PageData, arguments: Arguments=None) -> Union[Control, None]:
     """Render template."""
-    return template_definition(page_data, arguments)
- 
+    if isinstance(template_definition, str):
+        if template_definition in _global_templates:
+            _global_templates[template_definition](page_data, arguments)
+
+        else:
+            warn_explicit(
+                f'No template found: `{template_definition}`.', Warning,
+                'flet_navigator_main::template', 710)
+
+    else:
+        return template_definition(page_data, arguments)
+
+
+def global_template(template_name: str=None) -> Any:
+    """Register global template to last initialized navigator."""
+    if isinstance(template_name, Callable):
+        _global_templates[template_name.__name__] = template_name
+
+    else:
+        def _global_template(template: TemplateDefinition) -> None:
+            _global_templates[template.__name__ if not template_name or not isinstance(template_name, str) else template_name] = template
+
+        return _global_template
+
+
+def render(page: Page=None, routes: Routes={}, args: Arguments=None, parameters: dict[str, Any]=None, route_changed_handler: RouteChangedHandler=None, navigator_animation: NavigatorAnimation=NavigatorAnimation(), virtual: bool=False) -> None:
+    """Shortcut for rendering page at start (`Nav(page?).render(page)`)."""
+    if virtual:
+        VirtualFletNavigator(routes, route_changed_handler, navigator_animation).render(page, args)
+
+    else:
+        FletNavigator(page, routes, route_changed_handler, navigator_animation).render(page, args, parameters)
+
+
+def anon(function: Callable, args: Arguments=(), **kwargs: dict) -> None:
+    """Translate function into Flet anonymous (one-liner) function."""
+    return lambda _: function(page=_, *args, **kwargs)
