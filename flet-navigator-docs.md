@@ -1,4 +1,4 @@
-<h1 align="center">FletNavigator v2.6.5 Documentation.</h1>
+<h1 align="center">FletNavigator v2.7.5 Documentation.</h1>
 
 <h4 align="center">Menu:</h4>
 
@@ -10,7 +10,11 @@
 - [`NavigatorAnimation`](#navigatoranimation)
 - [`route`](#route)
 - [`define_page`](#define_page)
+- [`parameters`](#parameters)
 - [`template`](#template)
+- [`global_template`](#global_template)
+- [`render`](#render)
+- [`anon`](#anon)
 - [Summary.](#summary)
 
 <hr>
@@ -21,7 +25,10 @@ FletNavigator - Simple and fast navigator (router) for Flet (Python) that allows
 Installation is quite easy: ```pip install flet_navigator```
 
 > [!WARNING]  
-> FletNavigator is in active development phase + only one developer works on this project. Please, be patient and report all bugs.
+> ~FletNavigator is in active development phase + only one developer works on this project. Please, be patient and report all bugs.~
+
+> [!NOTE]
+> Starting from `v2.7.5` FletNavigator is production-stable and almost completely ready to use. Any bug reports are very appreciated.
 
 **FletNavigator Features**:
   - **✨ Simple installation and very simple using.**
@@ -111,33 +118,25 @@ Homepage is main page, that you can set with `set_homepage`, and navigate with `
   - `get_route_data(route: str) -> Any` - Get route data. More <a href="https://github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>.
   - `set_homepage(self, homepage: str) -> None` - Set homepage (main page). More <a href="https://github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>.
 
+  - `@property virtual() -> bool[True]` - Is navigator virtual? Used in `PageData`. 
+
 Using example:
 
 ```python
-from flet import app, Page, Text, FilledButton
+from flet import app, Text
 
-from flet_navigator import VirtualFletNavigator, PageData, ROUTE_404, route
+from flet_navigator import PageData, render, anon, route
 
 
 @route('/')
 def main_page(pg: PageData) -> None:
-    pg.add(FilledButton('Navigate to second page.', on_click=lambda _: pg.navigator.navigate('second_page', pg.page)))
+  pg.add(Text('Main Page!')) # or `pg.page.add`.
 
 @route('second_page')
 def second_page(pg: PageData) -> None:
-    ... # Second page content.
+  ... # Second page content.
 
-# Specify 404 page (since v2.6.5 it's optional).
-# @route(ROUTE_404)
-# def route_404(pg: PageData) -> None:
-#     ... # 404 Page Content.
-
-# Main function.
-def main(page: Page) -> None:
-    # Initialize navigator and render page.
-    VirtualFletNavigator().render(page)
-
-app(main)
+app(anon(render, virtual=True))
 ```
 
 <hr>
@@ -155,40 +154,32 @@ app(main)
   - `route_changed_handler: RouteChangedHandler = None` - Route changed handler.<br><br>
 
   - `__init__(page: Page, routes: Routes={}, route_changed_handler: RouteChangedHandler=None, navigator_animation: NavigatorAnimation=NavigatorAnimation()) -> None` - Initialize Flet Navigator.
-  - `navigate(route: str, page: Page, args: Arguments=None, parameters: dict=None) -> None` - Navigate to specific route. Specify `args` to transfer arguments to other page. Specify `parameters` to add URL parameters.
-  - `navigate_homepage(page: Page, args: Arguments=None, parameters: dict=None) -> None` - Navigate to homepage (main page).
+  - `navigate(route: str, page: Page, args: Arguments=None, parameters: dict[str, Any]=None) -> None` - Navigate to specific route. Specify `args` to transfer arguments to other page. Specify `parameters` to add URL parameters.
+  - `navigate_homepage(page: Page, args: Arguments=None, parameters: dict[str, Any]=None) -> None` - Navigate to homepage (main page).
   - `render(page: Page, args: tuple[Any]=None, route_parameters: dict[str, Any]={}) -> None` - Render current route. If there is no route like that throw ROUTE-404 (if specified). Should be called only one time.
   - `set_route_data(route: str, data: Any) -> int` - Set route data (cookies-like mechanism). Returns success/fail. More <a href="https://github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>.
   - `get_route_data(route: str) -> Any` - Get route data. More <a href="https://github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>.
   - `set_homepage(homepage: str) -> None` - Set homepage (main page). More <a href="https://github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>.
 
+  - `@property virtual() -> bool[False]` - Is navigator virtual? Used in `PageData`. 
+
 Using example:
 
 ```python
-from flet import app, Page, Text, FilledButton, WEB_BROWSER
+from flet import app, Text
 
-from flet_navigator import FletNavigator, PageData, ROUTE_404, route
+from flet_navigator import PageData, render, anon, route
 
 
 @route('/')
 def main_page(pg: PageData) -> None:
-    pg.add(FilledButton('Navigate to second page.', on_click=lambda _: pg.navigator.navigate('second_page', pg.page)))
+    pg.add(Text('Main Page!')) # or `pg.page.add`.
 
 @route('second_page')
 def second_page(pg: PageData) -> None:
     ... # Second page content.
 
-# Specify 404 page (since v2.6.5 it's optional).
-# @route(ROUTE_404)
-# def route_404(pg: PageData) -> None:
-#     ... # 404 Page Content.
-
-# Main function.
-def main(page: Page) -> None:
-    # Initialize navigator and render page.
-    FletNavigator(page).render(page)
-
-app(main, view=WEB_BROWSER)
+app(anon(render))
 ```
 
 <hr>
@@ -204,7 +195,9 @@ app(main, view=WEB_BROWSER)
   - `page_id: int = None` - Page ID.<br><br>
 
   - `set_appbar(appbar: Control) -> None` - Set appbar for current page. More <a href="https://github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>.
-  - `add(self, *controls: Control) -> None` - Append control(s) to page. Works as same as `Page.add`.
+  - `add(*controls: Control) -> None` - Append control(s) to page. Works as same as `Page.add`.
+  - `navigate(route: str, args: Arguments=None, parameters: dict[str, Any]=None) -> None` - Navigate to specific route. Parameters aren't used if navigator is virtual. Works as same as `PageData.navigator.navigate`.
+  - `navigate_homepage(args: Arguments=None, parameters: dict[str, Any]=None) -> None` - Navigate to homepage. Parameters aren't used if navigator is virtual. Works as same as `PageData.navigator.navigate_homepage`.
 
 <hr>
 
@@ -315,20 +308,86 @@ define_page('second_page', 'my_second_page_name') # => my_second_page_name
 
 <hr>
 
-<h3 align="center"><code>template</code></h3>
+<h3 align="center"><code>parameters</code></h3>
 
-```template(template_definition: TemplateDefinition, page_data: PageData, arguments: Arguments=None) -> Union[Control, None]```
+```parameters(route: str, **_parameters: dict) -> str```
 
-Used to render template. More <a href="https://github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>. Example:<br>
+<code>parameters</code> function added in <code>v2.7.5</code> and used to append route with parameters.<br><br>
 
 ```python
-def go_to_button(pg: PageData, args: Arguments) -> None:
-    pg.page.add(FilledButton(args[0], on_click=lambda _: pg.navigator.navigate(args[1], pg.page, args[2]))) # Or return FilledButton so we can do things with button later.
+parameters('route', param=1, param2=2, param3=3) # Returns 'route?param=1&param2=2&param3=3'.
+```
 
-def main(pg: PageData) -> None:
-    pg.page.add(Text('Hello World!'))
+<hr>
 
-    template(go_to_button, pg, ('Go to second page.', 'second_page', None)) # Out is FilledButton with text 'Go to second page.', and on click redirect to `second_page` happens.
+<h3 align="center"><code>template</code></h3>
+
+```template(template_definition: Union[str, TemplateDefinition], page_data: PageData, arguments: Arguments=None) -> Union[Control, None]```
+
+Used to render template. More <a href="https://github.com/xzripper/flet_navigator/issues/4#issuecomment-1817908000">detailed</a>.<br>
+
+In `v2.7.5` template features are extended: added global templates. Now you can use `@global_template` to register template and call template just by it's name.
+
+Example:<br>
+
+```python
+def local_template(pd: PageData, args: Arguments) -> Union[Control, None]:
+    ... # Template content...
+
+@global_template # or use @global_template(%TEMPLATE_NAME%) for custom name. So now template with name `my_global_template` is registered in global templates.
+def my_global_template(pd: PageData, args: Arguments) -> Union[Control, None]:
+    ... # Template content...
+
+@route('/')
+def index(pd: PageData) -> None:
+    template(local_template) # Local template.
+
+    template('my_global_template') # Global template.
+```
+
+<hr>
+
+<h3 align="center">global_template.</h3>
+
+```@global_template(template_name: str=None) -> Any```
+
+Decorator used to register global templates.
+
+```python
+def local_template(pd: PageData, args: Arguments) -> Union[Control, None]:
+    ... # Template content...
+
+@global_template # or use @global_template(%TEMPLATE_NAME%) for custom name. So now template with name `my_global_template` is registered in global templates.
+def my_global_template(pd: PageData, args: Arguments) -> Union[Control, None]:
+    ... # Template content...
+```
+
+<hr>
+
+<h3 align="center">render</h3>
+
+```render(page: Page=None, routes: Routes={}, args: Arguments=None, parameters: dict[str, Any]=None, route_changed_handler: RouteChangedHandler=None, navigator_animation: NavigatorAnimation=NavigatorAnimation(), virtual: bool=False) -> None```
+
+Shortcut for rendering page at start (`Nav(page?).render(page)`). Better use it with `anon`.
+
+```python
+@route('/')
+def index(pd: PageData) -> None:
+    ... # Index content...
+
+app(lambda page: render(page))
+```
+
+<hr>
+
+<h3 align="center">anon</h3>
+
+```anon(function: Callable, args: Arguments=(), **kwargs: dict) -> Callable```
+
+Function used to create anonymous functions. Anonymous function has one argument required - `page`.
+
+```python
+app(anon(render)) # instead of app(lambda page: render(page))
 ```
 
 <hr>
@@ -340,4 +399,4 @@ Summary! Now you know difference between virtual and non-virtual navigator, how 
 
 <hr>
 
-<p align="center"><b><i>FletNavigator V2.6.5</i></b></p>
+<p align="center"><b><i>FletNavigator V2.7.5</i></b></p>
