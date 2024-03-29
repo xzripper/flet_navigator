@@ -714,7 +714,7 @@ def template(template_definition: Union[str, TemplateDefinition], page_data: Pag
     """Render template."""
     if isinstance(template_definition, str):
         if template_definition in _global_templates:
-            _global_templates[template_definition](page_data, arguments)
+            return _global_templates[template_definition](page_data, arguments)
 
         else:
             warn_explicit(
