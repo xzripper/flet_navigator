@@ -8,6 +8,8 @@ from re import compile as re_compile
 
 from importlib import import_module
 
+from random import randint
+
 from time import sleep
 
 from typing import Union, Callable, Any
@@ -19,7 +21,7 @@ _pre_def_routes: 'Routes' = {}
 _global_templates: dict[str, 'TemplateDefinition'] = {}
 
 
-FLET_NAVIGATOR_VERSION: str = '2.7.5'
+FLET_NAVIGATOR_VERSION: str = '2.8.5'
 """Flet Navigator Version."""
 
 ROUTE_404: str = 'ROUTE-404'
@@ -49,8 +51,14 @@ class NavigatorAnimation:
     SHRINK: int = 3
     """Shrink (width) out animation."""
 
-    ROTATE: int = 4
+    SHRINK_VERTICAL: int = 4
+    """Shrink (height) out animation."""
+
+    ROTATE: int = 5
     """Rotate out animation."""
+
+    CUSTOM: int = 6
+    """Custom animation."""
 
     SMOOTHNESS_1: list[float] = [0.9, 0.0]
     """Smoothness level 1."""
@@ -97,7 +105,9 @@ class NavigatorAnimation:
     optimization_threshold: int = 5
     """Optimization threshold (maximal amount of controls that force optimized delay using instead of simple delay)."""
 
-    def __init__(self, animation: int=FADE, smoothness: list[float]=SMOOTHNESS_9, delay: float=0.01, optimized_delay: float=0.001, optimization_threshold: int=5) -> None:
+    _custom_animation_out: Callable[[Control, float, float], None] = None
+
+    def __init__(self, animation: int=FADE, smoothness: list[float]=SMOOTHNESS_8, delay: float=0.01, optimized_delay: float=0.001, optimization_threshold: int=5) -> None:
         """Initialize navigator animation."""
         self.animation = animation
         self.smoothness = smoothness
@@ -106,6 +116,11 @@ class NavigatorAnimation:
         self.optimized_delay = optimized_delay
 
         self.optimization_threshold = optimization_threshold
+
+    def set_custom_animation(self, animation: Callable[[Control, float, float], None]) -> None:
+        """Set custom animation (if custom selected)."""
+        if self.animation == self.CUSTOM:
+            self._custom_animation = animation
 
     def animate_out(self, page: Page, page_widgets: list[Control]) -> None:
         """Play out animation."""
@@ -116,56 +131,92 @@ class NavigatorAnimation:
 
         if self.animation == self.FADE:
             for control in page_widgets:
-                for opacity in self.smoothness:
-                    control.opacity = opacity
+                if control._get_control_name() != 'appbar':
+                    for opacity in self.smoothness:
+                        control.opacity = opacity
 
-                    page.update()
+                        page.update()
 
-                    sleep(delay)
+                        sleep(delay)
 
             page.clean()
 
         elif self.animation == self.SCALE:
             for control in page_widgets:
-                for scale in self.smoothness:
-                    control.scale = scale
+                if control._get_control_name() != 'appbar':
+                    for scale in self.smoothness:
+                        control.scale = scale
 
-                    page.update()
+                        page.update()
 
-                    sleep(delay)
+                        sleep(delay)
 
             page.clean()
 
         elif self.animation == self.SHRINK:
             for control in page_widgets:
-                for width in self.smoothness:
-                    control.scale = Scale(scale_x=width, scale_y=1)
+                if control._get_control_name() != 'appbar':
+                    for width in self.smoothness:
+                        control.scale = Scale(scale_x=width, scale_y=1)
 
-                    page.update()
+                        page.update()
 
-                    sleep(delay)
+                        sleep(delay)
+
+            page.clean()
+
+        elif self.animation == self.SHRINK_VERTICAL:
+            for control in page_widgets:
+                if control._get_control_name() != 'appbar':
+                    for height in self.smoothness:
+                        control.scale = Scale(scale_x=1, scale_y=height)
+
+                        page.update()
+
+                        sleep(delay)
 
             page.clean()
 
         elif self.animation == self.ROTATE:
             for control in page_widgets:
-                rotation_smoothness = (len(self.SMOOTHNESS_10) - len(self.smoothness)) + 1
+                if control._get_control_name() != 'appbar':
+                    rotation_smoothness = (len(self.SMOOTHNESS_10) - len(self.smoothness)) + 1
 
-                rotation_smoothness = rotation_smoothness // 2 if rotation_smoothness >= 2 else rotation_smoothness
+                    rotation_smoothness = rotation_smoothness // 2 if rotation_smoothness >= 2 else rotation_smoothness
 
-                for angle, scale in zip(range(0, 90, rotation_smoothness), self.smoothness):
-                    if scale <= 0.0:
-                        break
+                    for angle, scale in zip(range(0, randint(80, 160), rotation_smoothness - 1), self.smoothness):
+                        if scale <= 0.0:
+                            break
 
-                    control.rotate = angle
+                        control.rotate = angle
 
-                    control.scale = scale - 0.1
+                        control.scale = scale - 0.1
 
-                    page.update()
+                        page.update()
 
-                    sleep(delay)
+                        sleep(delay)
 
             page.clean()
+
+        elif self.animation == self.CUSTOM:
+            if self._custom_animation == None:
+                    warn_explicit(
+                        'Animation is set to custom but no animation found.', Warning,
+                        'flet_navigator::navigator_animation::animate_out', 202)
+
+                    page.clean()
+
+            else:
+                for control in page_widgets:
+                    if control._get_control_name() != 'appbar':
+                        for mult in self.smoothness:
+                            self._custom_animation(control, mult, (len(self.SMOOTHNESS_10) - len(self.smoothness)))
+
+                            page.update()
+
+                            sleep(delay)
+
+                page.clean()
 
         else:
             page.clean()
@@ -322,7 +373,7 @@ class VirtualFletNavigator:
                 if not re_compile(self._nav_route_simple_re).match(route):
                     warn_explicit(
                         f'Wrong route name: "{route}". Allowed only digits and underscores.', Warning,
-                        'flet_navigator::constructor', 322)
+                        'flet_navigator::constructor', 373)
 
                     routes_to_delete.append(route)
 
@@ -342,7 +393,7 @@ class VirtualFletNavigator:
         if '?' in route:
             warn_explicit(
                 'VirtualFletNavigator doesn\'t have URL parameters support. Consider using page arguments or FletNavigator.', Warning,
-                'flet_navigator::navigate', 342)
+                'flet_navigator::navigate', 393)
 
             route = route.split('?')[0]
 
@@ -497,7 +548,7 @@ class FletNavigator:
                 if not re_compile(self._nav_route_simple_re).match(route):
                     warn_explicit(
                         f'Wrong route name: "{route}". Allowed only digits and underscores.', Warning,
-                        'flet_navigator::constructor', 497)
+                        'flet_navigator::constructor', 548)
 
                     routes_to_delete.append(route)
 
@@ -522,7 +573,7 @@ class FletNavigator:
 
         self.route = route
 
-        page.go(self.route + ('?' + '&'.join([f'{key}={value}' for key, value in parameters.items()])) if parameters and len(parameters) >= 1 else self.route)
+        page.go(parameters_(route, **parameters))
 
     def navigate_homepage(self, page: Page, args: Arguments=None, parameters: dict[str, Any]=None) -> None:
         """Navigate homepage."""
@@ -585,6 +636,8 @@ class FletNavigator:
 
                             route_parameters, page_id))
 
+                    print(get_page_widgets(page))
+
                     page.update()
 
                     if self.route_changed_handler:
@@ -641,14 +694,14 @@ class FletNavigator:
                 if len(_parameter_parsed) <= 1:
                     warn_explicit(
                         f'Unable to parse route parameters ({_parameters_list.index(_parameter)}).', Warning,
-                        'flet_navigator::RouteChangeHandler', 641)
+                        'flet_navigator::RouteChangeHandler', 694)
 
                     continue
 
                 if not _parameter_parsed[0].isalpha():
                     warn_explicit(
                         f'Unable to parse route parameters ({_parameters_list.index(_parameter)}): key should be string.', Warning,
-                        'flet_navigator::RouteChangeHandler', 648)
+                        'flet_navigator::RouteChangeHandler', 701)
 
                     continue
 
@@ -696,19 +749,18 @@ def define_page(path: str, name: str=None) -> PageDefinition:
     try:
         page = getattr(import_module(path), path.split('.')[-1] if not name else name)
     except AttributeError:
-        warn_explicit(f'Unable to define page: "{path}".', Warning, 'flet_navigator::define_page', 697)
+        warn_explicit(f'Unable to define page: "{path}".', Warning, 'flet_navigator::define_page', 750)
 
     return page
 
 
 def parameters(route: str, **_parameters: dict) -> str:
     """Append route with parameters."""
-    if len(_parameters) >= 1:
-        return f'{route}?{"&".join(f"{key}={value}" for key, value in _parameters.items())}'
+    return f'{route}?{"&".join(f"{key}={value}" for key, value in _parameters.items())}' if len(_parameters) >= 1 else route
 
-    else:
-        return route
-
+def parameters_(route: str, **_parameters: dict) -> str:
+    """Append route with parameters."""
+    return parameters(route, **_parameters);
 
 def template(template_definition: Union[str, TemplateDefinition], page_data: PageData, arguments: Arguments=None) -> Union[Control, None]:
     """Render template."""
@@ -719,7 +771,7 @@ def template(template_definition: Union[str, TemplateDefinition], page_data: Pag
         else:
             warn_explicit(
                 f'No template found: `{template_definition}`.', Warning,
-                'flet_navigator_main::template', 710)
+                'flet_navigator_main::template', 771)
 
     else:
         return template_definition(page_data, arguments)
@@ -745,7 +797,10 @@ def render(page: Page=None, routes: Routes={}, args: Arguments=None, parameters:
     else:
         FletNavigator(page, routes, route_changed_handler, navigator_animation).render(page, args, parameters)
 
+def anon(function: Callable, *args: tuple, **kwargs: dict) -> Callable:
+    """Shortcut for anonymous redirection that doesn't require page as argument."""
+    return lambda _: function(*args, **kwargs)
 
-def anon(function: Callable, args: Arguments=(), **kwargs: dict) -> Callable:
-    """Translate function into Flet anonymous (one-liner) function."""
-    return lambda _: function(page=_, *args, **kwargs)
+def anon_argless(function: Callable, *args: tuple, **kwargs: dict) -> Callable:
+    """Shortcut for non-flet anonymous redirection that doesn't require page as argument."""
+    return lambda: function(*args, **kwargs)
