@@ -1,4 +1,4 @@
-<h1 align="center">FletNavigator v2.7.5 Documentation.</h1>
+<h1 align="center">FletNavigator v2.8.5 Documentation.</h1>
 
 <h4 align="center">Menu:</h4>
 
@@ -15,6 +15,7 @@
 - [`global_template`](#global_template)
 - [`render`](#render)
 - [`anon`](#anon)
+- [`anon_argless`](#anon_argless)
 - [Summary.](#summary)
 
 <hr>
@@ -25,7 +26,7 @@ FletNavigator - Simple and fast navigator (router) for Flet (Python) that allows
 Installation is quite easy: ```pip install flet_navigator```
 
 > [!WARNING]  
-> ~FletNavigator is in active development phase + only one developer works on this project. Please, be patient and report all bugs.~
+> FletNavigator's development has been stopped, which means that the library will stop receiving updates and may break. But you can still ask for help by pulling new issue and writing down your problem. But that doesn't mean you shouldn't use this library, it's still usable, even very usable.
 
 > [!NOTE]
 > Starting from `v2.7.5` FletNavigator is production-stable and almost completely ready to use. Any bug reports are very appreciated.
@@ -45,7 +46,7 @@ Installation is quite easy: ```pip install flet_navigator```
   - **NO TODO...**
 
 **FletNavigator Known Bugs**:
-  - **No flexible support for widgets like `AppBar` and others.**
+  - **No flexible support for widgets like `AppBar` and others (not that big problem thought).**
 
 <hr>
 
@@ -221,7 +222,9 @@ def main(page: Page) -> None:
   - `FADE: int = 1` - Fade animation.
   - `SCALE: int = 2` - Scale animation.
   - `SHRINK: int = 3` - Shrink animation.
-  - `ROTATE: int = 4` - Rotate animation.
+  - `SHRINK_VERTICAL: int = 4` - Vertical shrink animation.
+  - `ROTATE: int = 5` - Rotate animation.
+  - `CUSTOM: int = 6` - Custom animation.
   - `SMOOTHNESS_1: list[float] = [0.9, 0.0]` - Smoothness level 1.
   - `SMOOTHNESS_2: list[float] = [0.9, 0.8, 0.0]` - Smoothness level 2.
   - `SMOOTHNESS_3: list[float] = [0.9, 0.8, 0.7, 0.0]` - Smoothness level 3.
@@ -238,7 +241,20 @@ def main(page: Page) -> None:
   - `optimized_delay: float = 0.001` - Animation optimized delay (when a lot of controls on the page).
   - `optimization_threshold: int = 5` - Optimization threshold (maximal amount of controls that force optimized delay using instead of simple delay).<br><br>
 
+  - `set_custom_animation(animation: Callable[[Control, float, float], None]) -> None` - Set custom out animation. See the example below.
   - `animate_out(page: Page, page_widgets: list[Control]) -> None` - Play out animation. Basically shouldn't be called by user.
+
+Custom animation example
+```python
+# Takes current control (widget), multiplication value, and calculated smoothness value.
+def my_animation(control: Control, mult: float, smoothess: float) -> None:
+    control.scale = Scale(scale=control.scale.scale if control.scale else 1)
+
+    control.scale.scale += mult * 0.1
+
+anim = NavigatorAnimation(NavigatorAnimation.CUSTOM);
+anim.set_custom_animation(my_animation)
+```
 
 <hr>
 
@@ -392,11 +408,26 @@ app(anon(render)) # instead of app(lambda page: render(page))
 
 <hr>
 
+<h3 align="center">anon_argless</h3>
+
+```anon_argless(function: Callable, args: Arguments=(), **kwargs: dict) -> Callable```
+
+Turns function into argument-less lambda: `lambda: function(*args, **kwargs)`.
+
+```python
+pg.add(FilledButton("Hello World!", on_click=anon(pg.navigate_homepage)))
+```
+
+<hr>
+
 <h3 align="center">Summary.</h3>
-Summary! Now you know difference between virtual and non-virtual navigator, how to use navigator, etc! Good luck, have fun! But remember that project isn't finished!<br><br>
+Good luck and have fun using this library!
+
+<a href="https://github.com/xzripper/flet_navigator/pulls">Make your contribution.</a><br>
+<a href="https://github.com/xzripper/flet_navigator/issues/new/choose">Report bug.</a>
 
 *Developer Note*: It would be great support for me if you'd added credits for FletNavigator! Optional!
 
 <hr>
 
-<p align="center"><b><i>FletNavigator V2.7.5</i></b></p>
+<p align="center"><b><i>FletNavigator V2.8.5</i></b></p>
