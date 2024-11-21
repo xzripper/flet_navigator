@@ -26,7 +26,7 @@ FletNavigator - Simple and fast navigator (router) for Flet (Python) that allows
 Installation is quite easy: ```pip install flet_navigator```
 
 > [!WARNING]  
-> FletNavigator's development has been stopped, which means that the library will stop receiving updates and may break. But you can still ask for help by pulling new issue and writing down your problem. But that doesn't mean you shouldn't use this library, it's still usable, even very usable.
+> FletNavigator's development has been stopped, which means that the library will stop receiving updates and may break. But you can still ask for help by pulling new issue and writing down your problem. But that doesn't mean you shouldn't use this library, it's still usable, even very usable. UPDATE: Maybe I'll continue working on updates for `flet_navigator`.
 
 > [!NOTE]
 > Starting from `v2.7.5` FletNavigator is production-stable and almost completely ready to use. Any bug reports are very appreciated.
@@ -203,6 +203,9 @@ app(anon(render))
 <hr>
 
 <h3 align="center"><code>NavigatorAnimation</code></h3>
+
+> [!WARNING]  
+> Animation support is not stable because this feature should be implemented inside Flet itself. Their use is not recommended (use `NavigatorAnimation.NONE`).
 
 Class added in `V2.4.5` for implementing animation between page change. Example:
 
