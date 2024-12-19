@@ -1,5 +1,5 @@
 <h1 align="center">FletNavigator V3.8.5</h1>
-<p align="center">FletNavigator is a minimalistic, powerful, and extremely fast navigation management library designed for Flet applications. It simplifies the handling of routes and page transitions while delivering optimal performance. With its lightweight architecture, FletNavigator supports both virtual and public routing, enabling seamless navigation with or without public URLs. It allows dynamic page rendering, efficient management of URL parameters and arguments, and customizable route change callbacks. FletNavigator ensures smooth transitions between views, supports nested and parameterized routes, and provides built-in mechanisms for handling 404 errors. Its intuitive design and focus on speed make it an ideal choice for building responsive and robust Flet-based applications.</p>
+<p align="center">FletNavigator is a minimalistic, powerful, and extremely fast navigation management library designed for Flet applications. It simplifies the handling of routes and page transitions while delivering optimal performance. With its lightweight architecture, FletNavigator supports both virtual and public routing, enabling seamless navigation with or without public URLs. It allows dynamic page rendering, efficient management of URL parameters and arguments, and customizable route change callbacks. FletNavigator supports nested and parameterized routes, and provides built-in mechanisms for handling 404 errors. Its intuitive design and focus on speed make it an ideal choice for building responsive and robust Flet-based applications.</p>
 
 ## Table of Contents
 - [Installation](#installation)
@@ -259,4 +259,4 @@ from logging import getLogger
 getLogger('FN').propagate = False
 ```
 
-<hr><p align="center"><b>FletNavigator V3.8.5 by xzripper</b></p>
+<hr><p align="center"><b>FletNavigator V3.8.5</b></p>
