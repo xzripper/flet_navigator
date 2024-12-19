@@ -1,9 +1,4 @@
-"""FletNavigator Library.
-
-This library provides the implementation of the FletNavigator, which includes
-the management of page routing, navigation, and template rendering for Flet 
-applications. It supports both virtual and public navigation, allowing the 
-user to define routes, handle page transitions, and register global templates."""
+"""FletNavigator is a minimalistic, powerful, and extremely fast navigation management library designed for Flet applications. It simplifies the handling of routes and page transitions while delivering optimal performance. With its lightweight architecture, FletNavigator supports both virtual and public routing, enabling seamless navigation with or without public URLs. It allows dynamic page rendering, efficient management of URL parameters and arguments, and customizable route change callbacks. FletNavigator ensures smooth transitions between views, supports nested and parameterized routes, and provides built-in mechanisms for handling 404 errors. Its intuitive design and focus on speed make it an ideal choice for building responsive and robust Flet-based applications."""
 
 from flet import Page, Control, Text, IconButton
 
