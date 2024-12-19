@@ -1,13 +1,18 @@
 """Navigator for Flet."""
 
-from enum import IntFlag
 from flet import Page, Control, Scale, Text, TextButton
-from typing import Union, Callable, Any
+
 from warnings import warn_explicit
+
 from re import compile as re_compile
+
 from importlib import import_module
+
 from random import randint
+
 from time import sleep
+
+from typing import Union, Callable, Any
 
 
 _pre_def_routes: 'Routes' = {}
@@ -31,7 +36,9 @@ def get_page_widgets(page: Page) -> list[Control]:
     return page._get_children()[0]._get_children()
 
 
-class Animations(IntFlag):
+class NavigatorAnimation:
+    """Class for implementing animations between page change."""
+
     NONE: int = 0
     """None animation."""
 
@@ -52,10 +59,6 @@ class Animations(IntFlag):
 
     CUSTOM: int = 6
     """Custom animation."""
-
-
-class NavigatorAnimation:
-    """Class for implementing animations between page change."""
 
     SMOOTHNESS_1: list[float] = [0.9, 0.0]
     """Smoothness level 1."""
@@ -87,7 +90,7 @@ class NavigatorAnimation:
     SMOOTHNESS_10: list[float] = [1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.0]
     """Smoothness level 10."""
 
-    animation: Animations = Animations.FADE
+    animation: int = FADE
     """Selected animation."""
 
     smoothness: list[float] = SMOOTHNESS_9
@@ -104,97 +107,20 @@ class NavigatorAnimation:
 
     _custom_animation_out: Callable[[Control, float, float], None] = None
 
-    def __init__(self, 
-                 animation: Animations = Animations.FADE, 
-                 smoothness: list[float] = SMOOTHNESS_8, 
-                 delay: float=0.01, 
-                 optimized_delay: float=0.001, 
-                 optimization_threshold: int=5) -> None:
+    def __init__(self, animation: int=FADE, smoothness: list[float]=SMOOTHNESS_8, delay: float=0.01, optimized_delay: float=0.001, optimization_threshold: int=5) -> None:
         """Initialize navigator animation."""
-
         self.animation = animation
-
         self.smoothness = smoothness
 
         self.delay = delay
-
         self.optimized_delay = optimized_delay
 
         self.optimization_threshold = optimization_threshold
 
     def set_custom_animation(self, animation: Callable[[Control, float, float], None]) -> None:
         """Set custom animation (if custom selected)."""
-        if self.animation == Animations.CUSTOM:
+        if self.animation == self.CUSTOM:
             self._custom_animation = animation
-
-    def _animate_fade(self, page: Page, page_widgets: list[Control], delay) -> None:
-        for control in page_widgets:
-            if control._get_control_name() != 'appbar':
-                for opacity in self.smoothness:
-                    control.opacity = opacity
-                    page.update()
-                    sleep(delay)
-        page.clean()
-
-    def _animate_scale(self, page: Page, page_widgets: list[Control], delay) -> None:
-        for control in page_widgets:
-            if control._get_control_name() != 'appbar':
-                for scale in self.smoothness:
-                    control.scale = scale
-                    page.update()
-                    sleep(delay)
-        page.clean()
-
-    def _animate_shrink(self, page: Page, page_widgets: list[Control], delay) -> None:
-        for control in page_widgets:
-            if control._get_control_name() != 'appbar':
-                for width in self.smoothness:
-                    control.scale = Scale(scale_x=width, scale_y=1)
-                    page.update()
-                    sleep(delay)
-        page.clean()
-
-    def _animate_shrink_vertical(self, page: Page, page_widgets: list[Control], delay) -> None:
-        for control in page_widgets:
-            if control._get_control_name() != 'appbar':
-                for height in self.smoothness:
-                    control.scale = Scale(scale_x=1, scale_y=height)
-                    page.update()
-                    sleep(delay)
-        page.clean()
-
-    def _animate_rotate(self, page: Page, page_widgets: list[Control], delay) -> None:
-        for control in page_widgets:
-            if control._get_control_name() != 'appbar':
-                rotation_smoothness = (len(self.SMOOTHNESS_10) - len(self.smoothness)) + 1
-                rotation_smoothness = rotation_smoothness // 2 if rotation_smoothness >= 2 else rotation_smoothness
-
-                for angle, scale in zip(range(0, randint(80, 160), rotation_smoothness - 1), self.smoothness):
-                    if scale <= 0.0:
-                        break
-
-                    control.rotate = angle
-                    control.scale = scale - 0.1
-
-                    page.update()
-                    sleep(delay)
-        page.clean()
-
-    def _animate_custom(self, page: Page, page_widgets: list[Control], delay) -> None:
-        if self._custom_animation is not None:
-            for control in page_widgets:
-                if control._get_control_name() != 'appbar':
-                    for mult in self.smoothness:
-                        self._custom_animation(control, mult, (len(self.SMOOTHNESS_10) - len(self.smoothness)))
-                        page.update()
-                        sleep(delay)
-            page.clean()
-        else:
-            warn_explicit(
-                'Animation is set to custom but no animation found.', Warning,
-                'flet_navigator::navigator_animation::animate_out', 202)
-
-            page.clean()
 
     def animate_out(self, page: Page, page_widgets: list[Control]) -> None:
         """Play out animation."""
@@ -203,23 +129,94 @@ class NavigatorAnimation:
         if len(page_widgets) > self.optimization_threshold:
             delay = self.optimized_delay
 
-        if self.animation == Animations.FADE:
-            self._animate_fade(page, page_widgets, delay)
+        if self.animation == self.FADE:
+            for control in page_widgets:
+                if control._get_control_name() != 'appbar':
+                    for opacity in self.smoothness:
+                        control.opacity = opacity
 
-        elif self.animation == Animations.SCALE:
-            self._animate_scale(page, page_widgets, delay)
+                        page.update()
 
-        elif self.animation == Animations.SHRINK:
-            self._animate_shrink(page, page_widgets, delay)
+                        sleep(delay)
 
-        elif self.animation == Animations.SHRINK_VERTICAL:
-            self._animate_shrink_vertical(page, page_widgets, delay)
+            page.clean()
 
-        elif self.animation == Animations.ROTATE:
-            self._animate_rotate(page, page_widgets, delay)
+        elif self.animation == self.SCALE:
+            for control in page_widgets:
+                if control._get_control_name() != 'appbar':
+                    for scale in self.smoothness:
+                        control.scale = scale
 
-        elif self.animation == Animations.CUSTOM:
-            self._animate_custom(page, page_widgets, delay)
+                        page.update()
+
+                        sleep(delay)
+
+            page.clean()
+
+        elif self.animation == self.SHRINK:
+            for control in page_widgets:
+                if control._get_control_name() != 'appbar':
+                    for width in self.smoothness:
+                        control.scale = Scale(scale_x=width, scale_y=1)
+
+                        page.update()
+
+                        sleep(delay)
+
+            page.clean()
+
+        elif self.animation == self.SHRINK_VERTICAL:
+            for control in page_widgets:
+                if control._get_control_name() != 'appbar':
+                    for height in self.smoothness:
+                        control.scale = Scale(scale_x=1, scale_y=height)
+
+                        page.update()
+
+                        sleep(delay)
+
+            page.clean()
+
+        elif self.animation == self.ROTATE:
+            for control in page_widgets:
+                if control._get_control_name() != 'appbar':
+                    rotation_smoothness = (len(self.SMOOTHNESS_10) - len(self.smoothness)) + 1
+
+                    rotation_smoothness = rotation_smoothness // 2 if rotation_smoothness >= 2 else rotation_smoothness
+
+                    for angle, scale in zip(range(0, randint(80, 160), rotation_smoothness - 1), self.smoothness):
+                        if scale <= 0.0:
+                            break
+
+                        control.rotate = angle
+
+                        control.scale = scale - 0.1
+
+                        page.update()
+
+                        sleep(delay)
+
+            page.clean()
+
+        elif self.animation == self.CUSTOM:
+            if self._custom_animation == None:
+                    warn_explicit(
+                        'Animation is set to custom but no animation found.', Warning,
+                        'flet_navigator::navigator_animation::animate_out', 202)
+
+                    page.clean()
+
+            else:
+                for control in page_widgets:
+                    if control._get_control_name() != 'appbar':
+                        for mult in self.smoothness:
+                            self._custom_animation(control, mult, (len(self.SMOOTHNESS_10) - len(self.smoothness)))
+
+                            page.update()
+
+                            sleep(delay)
+
+                page.clean()
 
         else:
             page.clean()
@@ -250,15 +247,8 @@ class PageData:
     page_id: int = None
     """Page ID."""
 
-    def __init__(self, 
-                 page: Page, 
-                 navigator: Union['FletNavigator', 'VirtualFletNavigator'], 
-                 arguments: Arguments, 
-                 previous_page: str, 
-                 parameters: dict[str, Any], 
-                 page_id: int) -> None:
+    def __init__(self, page: Page, navigator: Union['FletNavigator', 'VirtualFletNavigator'], arguments: Arguments, previous_page: str, parameters: dict[str, Any], page_id: int) -> None:
         """Initialize PageData."""
-
         self.page = page
 
         self.navigator = navigator
@@ -275,20 +265,21 @@ class PageData:
         """Append control(s) to page."""
         self.page.add(*controls)
 
-    def navigate(self, 
-                 route: str, 
-                 args: Arguments = None, 
-                 parameters: dict[str, Any] = None) -> None:
+    def navigate(self, route: str, args: Arguments=None, parameters: dict[str, Any]=None) -> None:
         """Navigate to specific route. Parameters aren't used if navigator is virtual."""
+        if self.navigator.virtual:
+            self.navigator.navigate(route, self.page, args)
 
-        self.navigator.navigate_homepage(route, self.page, args, parameters if self.navigator.virtual else None)
+        else:
+            self.navigator.navigate(route, self.page, args, parameters)
 
-    def navigate_homepage(self, 
-                          args: Arguments = None, 
-                          parameters: dict[str, Any] = None) -> None:
+    def navigate_homepage(self, args: Arguments=None, parameters: dict[str, Any]=None) -> None:
         """Navigate to homepage. Parameters aren't used if navigator is virtual."""
+        if self.navigator.virtual:
+            self.navigator.navigate_homepage(self.page, args)
 
-        self.navigator.navigate_homepage(self.page, args, parameters if self.navigator.virtual else None)
+        else:
+            self.navigator.navigate_homepage(self.page, args, parameters)
 
     def set_appbar(self, appbar: Control) -> None:
         """Set appbar for this page (ID)."""
@@ -341,7 +332,8 @@ _DEFAULT_PAGE_404: PageDefinition = lambda pg: (
 """Default Page 404."""
 
 
-class AbstractNavigator:
+class VirtualFletNavigator:
+    """Flet Virtual Navigator Class."""
 
     route: str = '/'
     """Current route."""
@@ -368,12 +360,8 @@ class AbstractNavigator:
 
     _nav_route_simple_re: str = r'^[a-zA-Z_]\w*$'
 
-    def __init__(self, 
-                 routes: Routes = {}, 
-                 route_changed_handler: RouteChangedHandler = None, 
-                 navigator_animation: NavigatorAnimation = NavigatorAnimation(),
-                 _warn_explicit: int = 0) -> None:
-
+    def __init__(self, routes: Routes={}, route_changed_handler: RouteChangedHandler=None, navigator_animation: NavigatorAnimation=NavigatorAnimation()) -> None:
+        """Initialize Virtual Flet Navigator."""
         self.routes = routes
 
         self.route_changed_handler = route_changed_handler
@@ -381,12 +369,13 @@ class AbstractNavigator:
         routes_to_delete = []
 
         for route in self.routes:
-            if route != '/' and route != ROUTE_404 and not re_compile(self._nav_route_simple_re).match(route):
-                warn_explicit(
-                    f'Wrong route name: "{route}". Allowed only digits and underscores.', Warning,
-                    'flet_navigator::constructor', _warn_explicit)
+            if route != '/' and route != ROUTE_404:
+                if not re_compile(self._nav_route_simple_re).match(route):
+                    warn_explicit(
+                        f'Wrong route name: "{route}". Allowed only digits and underscores.', Warning,
+                        'flet_navigator::constructor', 373)
 
-                routes_to_delete.append(route)
+                    routes_to_delete.append(route)
 
         for route_to_delete in routes_to_delete:
             self.routes.pop(route_to_delete)
@@ -399,119 +388,7 @@ class AbstractNavigator:
         for route in _pre_def_routes:
             self.routes[route] = _pre_def_routes[route]
 
-    def navigate_homepage(self, page: Page, args: Arguments = None, **kwargs) -> None:
-        """Navigate homepage."""
-        self.navigate(self.homepage, page, args, **kwargs)
-
-    def render(self, 
-               page: Page, 
-               args: Arguments = None,
-               **kwargs) -> None:
-        """Render current route. If there is no route like that throw ROUTE-404 (if specified)."""
-        
-        route_parameters: dict[str, Any] = kwargs.get("route_parameters", {})
-
-        if self.route not in self.routes:
-            if ROUTE_404 in self.routes:
-                page.clean()
-
-                page.appbar = None
-                if 404 in self.appbars:
-                    page.appbar = self.appbars[404]
-
-                if self.route_changed_handler:
-                    self.route_changed_handler(self.route)
-
-                self.routes[ROUTE_404](
-                    PageData(
-                        page,
-                        self, 
-                        args,
-                        self._nav_previous_routes[-1] if len(self._nav_previous_routes) >= 1 else None,
-                        route_parameters, 
-                        404
-                    )
-                )
-            else:
-                page.clean()
-
-                if self.route_changed_handler:
-                    self.route_changed_handler(self.route)
-
-                _DEFAULT_PAGE_404(
-                    PageData(
-                        page, 
-                        self, 
-                        args,
-                        self._nav_previous_routes[-1] if len(self._nav_previous_routes) >= 1 else None,
-                        {}, 
-                        404
-                    )
-                )
-
-        else:
-            for route in self.routes:
-                if self.route == route:
-                    self.navigator_animation.animate_out(page, get_page_widgets(page))
-
-                    page_id = list(self.routes.keys()).index(route) + 1
-
-                    page.appbar = None
-                    if page_id in self.appbars:
-                        page.appbar = self.appbars[page_id]
-
-                    self.routes[route](
-                        PageData(
-                            page, 
-                            self, 
-                            args,
-                            self._nav_previous_routes[-1] if len(self._nav_previous_routes) >= 1 else '/',
-                            route_parameters, 
-                            page_id
-                        )
-                    )
-
-                    page.update()
-
-                    if self.route_changed_handler:
-                        self.route_changed_handler(route)
-
-    def set_route_data(self, route: str, data: Any) -> int:
-        """Set route data (cookies-like, but global)."""
-        if route not in self.routes_data:
-            return 1
-
-        self.routes_data[route] = data
-        return 0
-
-    def get_route_data(self, route: str) -> Any:
-        """Get route data (cookies-like, but global)."""
-        return self.routes_data.get(route)
-
-    def set_homepage(self, homepage: str) -> None:
-        """Set homepage."""
-        self.homepage = homepage
-
-    @property
-    def virtual(self) -> None:
-        """Is navigator virtual? (False)."""
-        return None
-
-
-class VirtualFletNavigator(AbstractNavigator):
-    """Flet Virtual Navigator Class."""
-
-    def __init__(self, 
-                 routes: Routes = {}, 
-                 route_changed_handler: RouteChangedHandler = None, 
-                 navigator_animation: NavigatorAnimation = NavigatorAnimation()) -> None:
-        """Initialize Virtual Flet Navigator."""
-        super().__init__(routes, route_changed_handler, navigator_animation, 373)
-
-    def navigate(self, 
-                 route: str, 
-                 page: Page, 
-                 args: Arguments = None) -> None:
+    def navigate(self, route: str, page: Page, args: Arguments=None) -> None:
         """Navigate to specific route."""
         if '?' in route:
             warn_explicit(
@@ -526,41 +403,170 @@ class VirtualFletNavigator(AbstractNavigator):
 
         self.render(page, args)
 
+    def navigate_homepage(self, page: Page, args: Arguments=None) -> None:
+        """Navigate homepage."""
+        self.navigate(self.homepage, page, args)
+
+    def render(self, page: Page, args: Arguments=None) -> None:
+        """Render current route. If there is no route like that throw ROUTE-404 (if specified)."""
+        if self.route not in self.routes:
+            if ROUTE_404 in self.routes:
+                page.clean()
+
+                if 404 in self.appbars:
+                    page.appbar = self.appbars[404]
+
+                else:
+                    page.appbar = None
+
+                if self.route_changed_handler:
+                    self.route_changed_handler(self.route)
+
+                self.routes[ROUTE_404](
+                    PageData(
+                        page, self, args,
+
+                        self._nav_previous_routes[-1] if len(self._nav_previous_routes) >= 1 else None,
+
+                        {}, 404))
+
+            else:
+                page.clean()
+
+                if self.route_changed_handler:
+                    self.route_changed_handler(self.route)
+
+                _DEFAULT_PAGE_404(PageData(
+                    page, self, args,
+
+                    self._nav_previous_routes[-1] if len(self._nav_previous_routes) >= 1 else None,
+
+                    {}, 404))
+
+        else:
+            for route in self.routes:
+                if self.route == route:
+                    self.navigator_animation.animate_out(page, get_page_widgets(page))
+
+                    page_id = list(self.routes.keys()).index(route) + 1
+
+                    if page_id in self.appbars:
+                        page.appbar = self.appbars[page_id]
+
+                    else:
+                        page.appbar = None
+
+                    self.routes[route](
+                        PageData(
+                            page, self, args,
+
+                            self._nav_previous_routes[-1] if len(self._nav_previous_routes) >= 1 else '/',
+
+                            {}, page_id))
+
+                    page.update()
+
+                    if self.route_changed_handler:
+                        self.route_changed_handler(route)
+
+    def set_route_data(self, route: str, data: Any) -> int:
+        """Set route data (cookies-like, but global)."""
+        if route in self.routes_data:
+            self.routes_data[route] = data
+
+            return 0
+
+        else:
+            return 1
+
+    def get_route_data(self, route: str) -> Any:
+        """Get route data (cookies-like, but global)."""
+        if route in self.routes_data:
+            return self.routes_data[route]
+
+        else:
+            return None
+
+    def set_homepage(self, homepage: str) -> None:
+        """Set homepage."""
+        self.homepage = homepage
+
     @property
     def virtual(self) -> bool:
         """Is navigator virtual? (True)."""
         return True
 
 
-class FletNavigator(AbstractNavigator):
+class FletNavigator:
     """Flet Navigator Class."""
 
     page: Page = None
     """Page."""
 
+    route: str = '/'
+    """Current route."""
+
+    routes: Routes = {}
+    """All supported routes."""
+
+    routes_data: dict[str, Any] = {}
+    """Routes data (cookies-like, but global)."""
+
+    homepage: str = '/'
+    """Homepage route."""
+
+    navigator_animation: NavigatorAnimation = NavigatorAnimation()
+    """Page switch animation."""
+
+    appbars: dict[int, Control] = {}
+    """Dictionary of appbars for each page ID."""
+
+    route_changed_handler: RouteChangedHandler = None
+    """On route changed handler."""
+
+    _nav_previous_routes: list[str] = ['/']
+
     _nav_temp_args: Arguments = None
 
+    _nav_route_simple_re: str = r'^[a-zA-Z_]\w*$'
     _nav_route_advanced_re: str = r'^[a-zA-Z_]\w*\?\w+=(?:[\w+~`!@"#№$;%^:*-,.|\/\\<>\'{}[\]()-]+)(?:&\w+=(?:[\w+~`!@"#№$;%^:*-,.|\/\\<>\'{}[\]()-]+))*$'
 
     _nav_is_float_re: str = r'^-?\d+\.\d+$'
 
-    def __init__(self, 
-                 page: Page, 
-                 routes: Routes = {}, 
-                 route_changed_handler: RouteChangedHandler = None, 
-                 navigator_animation: NavigatorAnimation = NavigatorAnimation()) -> None:
-        """Initialize Flet Navigator."""
+    def __init__(self, page: Page, routes: Routes={}, route_changed_handler: RouteChangedHandler=None, navigator_animation: NavigatorAnimation=NavigatorAnimation()) -> None:
+        """Initialize Virtual Flet Navigator."""
         self.page = page
-        super().__init__(routes, route_changed_handler, navigator_animation, 548)
+
+        self.routes = routes
+
+        self.route_changed_handler = route_changed_handler
+
+        routes_to_delete = []
+
+        for route in self.routes:
+            if route != '/' and route != ROUTE_404:
+                if not re_compile(self._nav_route_simple_re).match(route):
+                    warn_explicit(
+                        f'Wrong route name: "{route}". Allowed only digits and underscores.', Warning,
+                        'flet_navigator::constructor', 548)
+
+                    routes_to_delete.append(route)
+
+        for route_to_delete in routes_to_delete:
+            self.routes.pop(route_to_delete)
+
+        for route in self.routes:
+            self.routes_data[route] = None
+
         self.page.on_route_change = self._nav_route_change_handler
 
-    def navigate(self, 
-                 route: str, 
-                 page: Page, 
-                 args: Arguments = None, 
-                 parameters: dict[str, Any] = None) -> None:
-        """Navigate to specific route."""
+        self.navigator_animation = navigator_animation
 
+        for route in _pre_def_routes:
+            self.routes[route] = _pre_def_routes[route]
+
+    def navigate(self, route: str, page: Page, args: Arguments=None, parameters: dict[str, Any]=None) -> None:
+        """Navigate to specific route."""
         self._nav_previous_routes.append(self.route)
 
         self._nav_temp_args = args
@@ -569,18 +575,95 @@ class FletNavigator(AbstractNavigator):
 
         page.go(parameters_(route, **parameters))
 
-    def navigate_homepage(self, 
-                          page: Page, 
-                          args: Arguments = None, 
-                          parameters: dict[str, Any] = None) -> None:
-        super().navigate_homepage(self.homepage, page, args, parameters=parameters)
+    def navigate_homepage(self, page: Page, args: Arguments=None, parameters: dict[str, Any]=None) -> None:
+        """Navigate homepage."""
+        self.navigate(self.homepage, page, args, parameters)
 
-    def render(self, 
-               page: Page, 
-               args: Arguments = None, 
-               route_parameters: dict[str, Any] = {}) -> None:
-        super().render(page, args, route_parameters)
+    def render(self, page: Page, args: Arguments=None, route_parameters: dict[str, Any]={}) -> None:
+        """Render current route. If there is no route like that throw ROUTE-404 (if specified)."""
+        if self.route not in self.routes:
+            if ROUTE_404 in self.routes:
+                page.clean()
 
+                if 404 in self.appbars:
+                    page.appbar = self.appbars[404]
+
+                else:
+                    page.appbar = None
+
+                if self.route_changed_handler:
+                    self.route_changed_handler(self.route)
+
+                self.routes[ROUTE_404](
+                    PageData(
+                        page, self, args,
+
+                        self._nav_previous_routes[-1] if len(self._nav_previous_routes) >= 1 else None,
+
+                        route_parameters, 404))
+
+            else:
+                page.clean()
+
+                if self.route_changed_handler:
+                    self.route_changed_handler(self.route)
+
+                _DEFAULT_PAGE_404(PageData(
+                    page, self, args,
+
+                    self._nav_previous_routes[-1] if len(self._nav_previous_routes) >= 1 else None,
+
+                    {}, 404))
+
+        else:
+            for route in self.routes:
+                if self.route == route:
+                    self.navigator_animation.animate_out(page, get_page_widgets(page))
+
+                    page_id = list(self.routes.keys()).index(route) + 1
+
+                    if page_id in self.appbars:
+                        page.appbar = self.appbars[page_id]
+
+                    else:
+                        page.appbar = None
+
+                    self.routes[route](
+                        PageData(
+                            page, self, args,
+
+                            self._nav_previous_routes[-1] if len(self._nav_previous_routes) >= 1 else '/',
+
+                            route_parameters, page_id))
+
+                    print(get_page_widgets(page))
+
+                    page.update()
+
+                    if self.route_changed_handler:
+                        self.route_changed_handler(route)
+
+    def set_route_data(self, route: str, data: Any) -> int:
+        """Set route data (cookies-like, but global)."""
+        if route in self.routes_data:
+            self.routes_data[route] = data
+
+            return 0
+
+        else:
+            return 1
+
+    def get_route_data(self, route: str) -> Any:
+        """Get route data (cookies-like, but global)."""
+        if route in self.routes_data:
+            return self.routes_data[route]
+
+        else:
+            return None
+
+    def set_homepage(self, homepage: str) -> None:
+        """Set homepage."""
+        self.homepage = homepage
 
     def _nav_route_change_handler(self, _) -> None:
         route: str = self.page.route \
@@ -677,7 +760,7 @@ def parameters(route: str, **_parameters: dict) -> str:
 
 def parameters_(route: str, **_parameters: dict) -> str:
     """Append route with parameters."""
-    return parameters(route, **(_parameters or {}))
+    return parameters(route, **_parameters);
 
 def template(template_definition: Union[str, TemplateDefinition], page_data: PageData, arguments: Arguments=None) -> Union[Control, None]:
     """Render template."""
@@ -706,16 +789,11 @@ def global_template(template_name: str=None) -> Any:
         return _global_template
 
 
-def render(page: Page = None, 
-           routes: Routes = {}, 
-           args: Arguments = None, 
-           parameters: dict[str, Any] = None, 
-           route_changed_handler: RouteChangedHandler = None, 
-           navigator_animation: NavigatorAnimation = NavigatorAnimation(), 
-           virtual: bool = False) -> None:
+def render(page: Page=None, routes: Routes={}, args: Arguments=None, parameters: dict[str, Any]=None, route_changed_handler: RouteChangedHandler=None, navigator_animation: NavigatorAnimation=NavigatorAnimation(), virtual: bool=False) -> None:
     """Shortcut for rendering page at start (`Nav(page?).render(page)`)."""
     if virtual:
         VirtualFletNavigator(routes, route_changed_handler, navigator_animation).render(page, args)
+
     else:
         FletNavigator(page, routes, route_changed_handler, navigator_animation).render(page, args, parameters)
 
