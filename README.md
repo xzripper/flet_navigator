@@ -1,33 +1,34 @@
-<h1 align="center">🚧 FletNavigator is currently unstable due to various errors, affecting both the PyPI release and the current code branch. I am working on resolving these issues, and the navigator is under maintenance. 🚧</h1>
-<p align="center"><small>Also I lost access to PyPi account, so its going to take a bit more time than expected :(</small></p><hr>
+<h1 align="center"><b>FletNavigator V3</b></h1>
+<p align="center"><img src="https://img.shields.io/badge/V3.8.5-black?style=for-the-badge&logo=flutter&logoColor=white">
+<img src="https://img.shields.io/badge/Python%203.9%2B-black?style=for-the-badge&logo=python&logoColor=white">
+<img src="https://img.shields.io/badge/Awesome%20Flet-black?style=for-the-badge&logo=styledcomponents&logoColor=white&logoSize=auto"></p><p align="center"><b>FletNavigator is a simple yet effective library made to handle navigation in Flet apps incredibly quickly. Effective management of both virtual and public routes are guaranteed by its lightweight architecture. Complex navigation situations are made simpler by its support for dynamic page rendering, URL parameters, and configurable route change callbacks. With built-in 404 error handling and hierarchical and parameterised routes, FletNavigator shines. Building responsive and reliable Flet-based applications is made easier with its user-friendly design and performance optimisation.</b></p>
 
-<h1 align="center">FletNavigator V2.<br><img src="https://img.shields.io/badge/V2.8.5-white?style=for-the-badge&logo=flutter&logoColor=red"> <img src="https://img.shields.io/badge/STABLE-white?style=for-the-badge&logo=python&logoColor=black"> <img src="https://img.shields.io/badge/AWESOME%20FLET-white?style=for-the-badge&logo=adventofcode&logoColor=black"><br><img src="https://img.shields.io/github/issues/xzripper/flet_navigator?style=for-the-badge&color=white"> <img src="https://img.shields.io/github/issues-closed/xzripper/flet_navigator?style=for-the-badge&color=white"> <img src="https://img.shields.io/github/last-commit/xzripper/flet_navigator/main?style=for-the-badge&color=white"></h1>
-<p align="center"><img src="example2.gif" width=600><br><i>FletNavigator & <a href="https://github.com/xzripper/flet_restyle">FletReStyle</a>.</i></p>
-<p align="center">Simple and fast navigator (router) for Flet (Python) that allows you to create multi-page applications! [<code>pip install flet_navigator</code>].<br><br>Click for <b><a href="https://github.com/xzripper/flet_navigator/blob/main/flet-navigator-docs.md">documentation</a>.</b></p><br>
-<p align="center">Example:
+<p align="center"><img src="mini.gif"></p>
+
+<b>
 
 ```python
-from flet import app, Text
+from flet import app, Text, FilledButton
 
-from flet_navigator import PageData, render, anon, route
+from flet_navigator import PublicFletNavigator, PageData, route
 
 
 @route('/')
-def main_page(pg: PageData) -> None:
-    pg.add(Text('Main Page!')) # or `pg.page.add`.
+def main(pg: PageData) -> None:
+    pg.add(Text('Hello World!'))
 
-@route('second_page')
-def second_page(pg: PageData) -> None:
-    ... # Second page content.
+    pg.add(FilledButton('Navigate to the second page!', on_click=lambda _: pg.navigate('second')))
 
-app(anon(render))
+@route
+def second(pg: PageData) -> None:
+    pg.add(Text('I am the second page!'))
+
+    pg.add(FilledButton('Return to the homepage!', on_click=lambda _: pg.navigate_homepage()))
+
+app(lambda page: PublicFletNavigator(page).render(page))
 ```
+</b>
 
-</p><br>
+<p align="center"><a href="https://github.com/xzripper/flet_navigator/blob/main/flet-navigator-docs.md"><b>See the documentation.</b></a></p>
 
-<p align="center"><img src="example.gif" width=500></p> <p align="center"><i>(Old Example GIF).</i></p>
-
-See documentation <a href="https://github.com/xzripper/flet_navigator/blob/main/flet-navigator-docs.md">here</a>.
-
-<hr>
-<p align="center"><b>FletNavigator v2.8.5.</b></p>
+<hr><p align="center"><b>FletNavigator V3.8.5</b></p>
