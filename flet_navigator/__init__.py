@@ -126,7 +126,7 @@ RouteChangeCallback = Callable[[str], None]
 Routes = dict[str, PageDefinition]
 """Alias for routes map."""
 
-RouteParameters = dict[str, Any]
+RouteParameters = dict[str, Union[str, int, bool, None]]
 """Alias for route parameters map."""
 
 
@@ -186,7 +186,7 @@ class AbstractFletNavigator:
         nav.route_change_callback = route_change_callback
 
         if not nav.is_virtual():
-            page.on_route_change = nav._nav_route_changed_callback
+            page.on_route_change = nav.fn_route_change_handler_
 
         routes_to_delete = []
 
@@ -219,6 +219,10 @@ class AbstractFletNavigator:
 
         else:
             nav.render(page, args)
+
+    @staticmethod
+    def set_homepage(nav: Union['VirtualFletNavigator', 'PublicFletNavigator'], /, homepage: str) -> None:
+        nav.homepage = homepage
 
     @staticmethod
     def render(nav: Union['VirtualFletNavigator', 'PublicFletNavigator'], /, page: Page, args: Arguments=(), route_parameters: RouteParameters={}) -> None:
@@ -293,7 +297,7 @@ class VirtualFletNavigator:
 
     def set_homepage(self, homepage: str) -> None:
         """Set a new homepage route."""
-        self.homepage = homepage
+        AbstractFletNavigator.set_homepage(self, homepage)
 
     def render(self, page: Page, args: Arguments=()) -> None:
         """Render the current route on the provided page. If the route is not found, a 404 error page is shown."""
@@ -349,20 +353,20 @@ class PublicFletNavigator:
 
     def set_homepage(self, homepage: str) -> None:
         """Set a new homepage route."""
-        self.homepage = homepage
+        AbstractFletNavigator.set_homepage(self, homepage)
 
     def is_virtual(self) -> None:
         """Check if the navigator is virtual or public."""
         return getattr(self, 'virtual', None)
 
-    def _nav_route_changed_callback(self, _) -> None:
+    def fn_route_change_handler_(self, _) -> None:
         route: str = self.page.route.replace(' ', _url_fn_space_chr).replace('%20', _url_fn_space_chr).replace('+', _url_fn_space_chr)
 
         route = route[1:] if route.startswith('/') and len(route) >= 2 else route
 
         split_url = urlsplit(route)
 
-        broute, qstr = split_url.path, split_url.query
+        base_route, qstr = split_url.path, split_url.query
 
         parameters = {}
 
@@ -383,7 +387,7 @@ class PublicFletNavigator:
                 elif value == 'None': parameters[key] = None
                 else: parameters[key] = value.replace(_url_fn_space_chr, ' ')
 
-        self.route = broute
+        self.route = base_route
 
         if not globals().get('_FNDP404_CLOSED'):
             setattr(self.page, 'horizontal_alignment', globals().get('_FNDP404_PRE_H_A')),
