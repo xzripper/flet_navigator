@@ -1,4 +1,4 @@
-<h1 align="center">FletNavigator V3.8.5</h1>
+<h1 align="center">FletNavigator V3.8.6</h1>
 <p align="center">FletNavigator is a minimalistic, powerful, and extremely fast navigation management library designed for Flet applications. It simplifies the handling of routes and page transitions while delivering optimal performance. With its lightweight architecture, FletNavigator supports both virtual and public routing, enabling seamless navigation with or without public URLs. It allows dynamic page rendering, efficient management of URL parameters and arguments, and customizable route change callbacks. FletNavigator supports nested and parameterized routes, and provides built-in mechanisms for handling 404 errors. Its intuitive design and focus on speed make it an ideal choice for building responsive and robust Flet-based applications.</p>
 
 ## Table of Contents
@@ -227,7 +227,8 @@ def func(pg: PageData, *args) -> None: # Template is registered as 'my_template_
     ...
 
 # Fetch/render a local template within your page.
-template(my_local_template, page_data)
+template('my_template', page_data)
+template('my_template_2', page_data)
 ```
 
 # Aliases
@@ -248,15 +249,16 @@ template(my_local_template, page_data)
     Alias for routes map: `dict[str, PageDefinition]`.
 
 - **RouteParameters**    
-    Alias for route parameters map: `dict[str, Any]`.
+    Alias for route parameters map: `dict[str, Union[str, int, bool, None]]`.
 
 # Disabling FletNavigator logger
-You can disable FletNavigator logger by setting `propagate` to `False`.
+You can disable FletNavigator logger by setting `FN`'s logger `propagate` property to `False`.
 
 ```python
 from logging import getLogger
 
+# Append this line after the navigator has been initialized.
 getLogger('FN').propagate = False
 ```
 
-<hr><p align="center"><b>FletNavigator V3.8.5</b></p>
+<hr><p align="center"><b>FletNavigator V3.8.6</b></p>
