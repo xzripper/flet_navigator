@@ -22,7 +22,7 @@ _global_templates: dict[str, 'TemplateDefinition'] = {}
 _url_fn_space_chr: str = '<FN385S>'
 
 
-FLET_NAVIGATOR_VERSION: str = '3.8.5'
+FLET_NAVIGATOR_VERSION: str = '3.8.6'
 """The version of the Flet Navigator."""
 
 
