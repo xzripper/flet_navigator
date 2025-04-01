@@ -3,7 +3,7 @@
 <img src="https://img.shields.io/badge/Python%203.9%2B-black?style=for-the-badge&logo=python&logoColor=white" width=150>
 <img src="https://img.shields.io/badge/Awesome%20Flet-black?style=for-the-badge&logo=styledcomponents&logoColor=white&logoSize=auto" width=185></p>
 
-<p align="center"><b>FletNavigator is a simple yet effective library made to handle navigation in Flet apps incredibly quickly. Effective management of both virtual and public routes are guaranteed by its lightweight architecture. Complex navigation situations are made simpler by its support for dynamic page rendering, URL parameters, and configurable route change callbacks. With built-in 404 error handling and hierarchical and parameterised routes, FletNavigator shines. Building responsive and reliable Flet-based applications is made easier with its user-friendly design and performance optimisation.</b></p>
+<p align="center"><b>FletNavigator is a module that revolutionizes navigation/routing in the Flet framework, combining uncombined speed, super-simplicity, and efficiency. FletNavigator supports cross-page templates, cross-page argument passing, URL parameters, 404 page customization, and other useful features, with only ~120 lines of code under the hood (no blank lines or docstrings). Install and try it yourself!</b></p>
 
 <p align="center"><img src="https://github.com/xzripper/flet_navigator/blob/main/mini.gif?raw=true"></p>
 
