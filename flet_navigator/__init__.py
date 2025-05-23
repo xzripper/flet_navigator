@@ -52,13 +52,13 @@ _DEFAULT_PAGE_404: 'PageDefinition' = lambda pg: (
         ), tooltip='Return to the homepage.'
     ))
 )
-"""Default route-404 handler."""
+"""A default Route-404 handler."""
 
 
 ROUTE_404: str = 'ROUTE-404'
 """A constant string representing the 404 route type.
 
-Used to specify a custom route for handling 404 errors (Page Not Found) in web applications. 
+Used to specify a custom route for handling 404 errors (Page Not Found) in applications. 
 This can be customized for routing or error handling purposes."""
 
 
@@ -82,12 +82,7 @@ RouteParameters = dict[str, Union[str, int, bool, None]]
 
 
 class PageData:
-    """Represents data associated with a specific page in a navigation system.
-
-    This class holds information about the current page, its associated navigator, 
-    arguments and parameters passed from the previous page, and the page ID.
-    It provides methods to navigate between routes, manage the navigation bar, 
-    and more."""
+    """Just a class that contains page data and some utility functions for navigation."""
 
     page: Page = None
     """The current page instance."""
@@ -201,7 +196,7 @@ class AbstractFletNavigator:
                 if not re_compile(nav._afn_vroute).match(route):
                     routes_to_delete.append(route)
 
-                    nav._logger.error(f'Invalid route name: "{route}". Route names must start with a letter or underscore and contain only alphanumeric characters or underscores).')
+                    nav._logger.error(f'Invalid route name: "{route}". Route name must start with a letter or underscore and contain only alphanumeric characters or underscores).')
 
         for route_to_delete in routes_to_delete:
             nav.routes.pop(route_to_delete)
@@ -266,7 +261,7 @@ class AbstractFletNavigator:
             else:
                 _DEFAULT_PAGE_404(PageData(page, nav, args, route_parameters, ROUTE_404))
 
-            nav._logger.error(f'The route "{nav.route}" does not exist in the defined routes. Unable to render the page.')
+            nav._logger.error(f'Invalid route: "{nav.route}" does not exist in the defined routes. Unable to render the page.')
 
         else:
             page.clean()
@@ -292,11 +287,7 @@ class AbstractFletNavigator:
 
 
 class VirtualFletNavigator:
-    """Virtual navigator class.
-
-    Manages routing and navigation in a Flet application. It allows navigation between routes,
-    setting a homepage, and rendering pages based on the current route. This class provides virtual navigation,
-    where the route and page content are managed without public URL address."""
+    """The Virtual Flet Navigator. It's just like the public one, but without URL parameters and visible routes."""
 
     route: str = '/'
     """The current active route."""
@@ -346,11 +337,7 @@ class VirtualFletNavigator:
 
 
 class PublicFletNavigator:
-    """Public navigator class.
-
-    This class handles routing and navigation in a Flet application, managing routes, 
-    page rendering, and navigation between different pages. It supports navigating to 
-    specific routes, setting a homepage, and handling route changes. Works with the public URL addresses."""
+    """The Public Flet Navigator. It's just like the virtual one, but with URL parameters and visible routes."""
 
     page: Page = None
     """Page object representing the current page."""
@@ -445,8 +432,9 @@ class PublicFletNavigator:
 def route(route: Union[str, PageDefinition]) -> Any:
     """Link a route to the last initialized navigator.
 
-    This function either registers a route as a string, associating it with a given 
-    page definition or adds a page definition as a decorator for a specified route."""
+    This function registers the route and associates it with a given page definition.
+    The only difference is the name. You can specify the name in the first argument.
+    or this function will fetch the given function name automatically."""
     if isinstance(route, Callable):
         _pre_def_routes[route.__name__] = route
 
@@ -460,36 +448,39 @@ def route(route: Union[str, PageDefinition]) -> Any:
 def load_page(path: str, name: Optional[str]=None) -> PageDefinition:
     """Load a page definition from a specified module.
 
-    This function dynamically imports a module based on the provided `path` and attempts 
-    to retrieve a page definition. If a `name` is specified, it looks for the page definition 
-    with that name; otherwise, it uses the last part of the `path` as the name.
+    Let me explain this technically: it replaces all the system path separators with a dot.
+    After loading the module by its path, it loads the page definition function.
+    The function name is determined by the path. If a name is specified, then it loads the specified name.
+    Otherwise, it uses the last name in the path.
     
-    Raises `ImportError` if the module or the specified page definition cannot be loaded."""
+    Can throw `ModuleNotFoundError` and `AttributeError`."""
     path = path.replace('\\', '.').replace('/', '.')
 
     page = None
 
     try:
-        page = getattr(import_module(path), path.split('.')[-1] if not name else name)
+        page = getattr(import_module(path), _pd := path.split('.')[-1] if not name else name)
+    except ModuleNotFoundError:
+        raise TypeError(f'Failed to load page definition module: "{path}".')
     except AttributeError:
-        raise ImportError(f'Failed to load page definition: "{path}".')
+        raise ImportError(f'Failed to load page definition: "{_pd}".')
 
     return page
 
 
 def template(template_definition: Union[str, TemplateDefinition], page_data: PageData, arguments: Arguments=()) -> Optional[Control]:
     """Render a template for the given page data and arguments.
-
-    This function checks if the `template_definition` is a string or a callable. 
-    If it's a string, it attempts to retrieve a registered global template by that name.
-    If the template is not found, it logs an error. If it's a callable (template function),
-    it directly calls it with the provided `page_data` and `arguments`."""
+    
+    If `template_definition` is a string, then it's a global template.
+    The function will try to find the template you defined earlier via `@global_template` in the list of global templates.
+    If `template_definition` is a callable, then it's a local template.
+    The template will be rendered by calling the template function."""
     if isinstance(template_definition, str):
         if template_definition in _global_templates:
             return _global_templates[template_definition](page_data, arguments)
 
         else:
-            page_data.navigator._logger.error(f'No template found with the name: "{template_definition}". Ensure the template is registered and its name is correct.')
+            page_data.navigator._logger.error(f'No global template found with the name: "{template_definition}". Ensure the template is registered and its name is correct.')
 
     else:
         return template_definition(page_data, arguments)
@@ -498,10 +489,9 @@ def template(template_definition: Union[str, TemplateDefinition], page_data: Pag
 def global_template(template_name: Optional[str]=None) -> Any:
     """Register a global template to the last initialized navigator.
 
-    This function registers a template either by associating a callable template
-    with a name or by using a provided template name. If a string `template_name`
-    is passed, it registers the template under that name. If no name is provided,
-    the template function's name is used as the key."""
+    This function registers the template and associates it with a given template definition.
+    The only difference is the name. You can specify the name in the first argument.
+    or this function will fetch the given template function name automatically."""
     if isinstance(template_name, Callable):
         _global_templates[template_name.__name__] = template_name
 
