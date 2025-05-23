@@ -61,23 +61,24 @@ ROUTE_404: str = 'ROUTE-404'
 Used to specify a custom route for handling 404 errors (Page Not Found) in web applications. 
 This can be customized for routing or error handling purposes."""
 
+
 Arguments = tuple[Any, ...]
-"""Alias for page-transfering arguments."""
+"""Alias for a page-transfering arguments."""
 
 PageDefinition = Callable[['PageData'], None]
-"""Alias for page definition."""
+"""Alias for a page definition."""
 
 TemplateDefinition = Callable[['PageData', Arguments], Optional[Control]]
-"""Alias for template definition."""
+"""Alias for a template definition."""
 
 RouteChangeCallback = Callable[[str], None]
-"""Alias for route change callback."""
+"""Alias for a route change callback."""
 
 Routes = dict[str, PageDefinition]
-"""Alias for routes map."""
+"""Alias for a routes map."""
 
 RouteParameters = dict[str, Union[str, int, bool, None]]
-"""Alias for route parameters map."""
+"""Alias for a route parameters map."""
 
 
 class PageData:
