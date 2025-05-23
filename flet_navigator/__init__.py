@@ -468,7 +468,7 @@ def load_page(path: str, name: Optional[str]=None) -> PageDefinition:
     return page
 
 
-def template(template_definition: Union[str, TemplateDefinition], page_data: PageData, arguments: Arguments=()) -> Optional[Control]:
+def template(template_definition: Union[str, TemplateDefinition], page_data: PageData, arguments: Arguments=()) -> Optional[Any]:
     """Render a template for the given page data and arguments.
     
     If `template_definition` is a string, then it's a global template.
