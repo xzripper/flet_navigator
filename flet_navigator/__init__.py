@@ -1,16 +1,16 @@
 """Super minimalistic module for navigation in Flet combining speed and simplicity."""
 
-from flet import Page, Control, Text, IconButton
+from importlib import import_module
 
-from urllib.parse import parse_qs, urlsplit, unquote
-
-from logging import basicConfig, getLogger, ERROR
+from logging import ERROR, basicConfig, getLogger
 
 from re import compile as re_compile
 
-from importlib import import_module
+from urllib.parse import parse_qs, unquote, urlsplit
 
-from typing import Union, Optional, Callable, Any
+from typing import Any, Callable, Optional, Union
+
+from flet import Control, IconButton, Page, Text
 
 
 _pre_def_routes: 'Routes' = {}
