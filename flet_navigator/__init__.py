@@ -112,7 +112,7 @@ class PageData:
         self.page_id = page_id
 
     def current_route(self) -> str:
-        """Get the current route from the navigator."""
+        """Get the navigator's current route state."""
         return self.navigator.route
 
     def add(self, *controls: Control) -> None:
