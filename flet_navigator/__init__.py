@@ -12,6 +12,8 @@ from typing import Any, Callable, Optional, Union
 
 from flet import Control, IconButton, Page, Text
 
+from flet.core.constrained_control import ConstrainedControl
+
 
 _pre_def_routes: 'Routes' = {}
 
@@ -143,7 +145,7 @@ class PageData:
         else:
             self.navigator.navigate_back(self.page, args, parameters)
 
-    def set_navbar(self, navbar: Control) -> None:
+    def set_navbar(self, navbar: ConstrainedControl) -> None:
         """Set the navigation bar for the current page."""
         self.page.appbar = navbar
 
@@ -301,7 +303,7 @@ class VirtualFletNavigator:
     homepage: str = '/'
     """The homepage route."""
 
-    navbars: dict[int, Control] = {}
+    navbars: dict[int, ConstrainedControl] = {}
     """A dictionary mapping page IDs to their corresponding navigation bars."""
 
     route_change_callback: RouteChangeCallback = None
@@ -354,7 +356,7 @@ class PublicFletNavigator:
     homepage: str = '/'
     """The homepage route."""
 
-    navbars: dict[int, Control] = {}
+    navbars: dict[int, ConstrainedControl] = {}
     """A dictionary mapping page IDs to their corresponding navigation bars."""
 
     route_change_callback: RouteChangeCallback = None
