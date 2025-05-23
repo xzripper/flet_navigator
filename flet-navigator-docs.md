@@ -1,264 +1,75 @@
-<h1 align="center">FletNavigator V3.8.6</h1>
-<p align="center">FletNavigator is a module that has the potential to transform the navigation and routing processes within the Flet framework. It offers a combination of speed, simplicity and efficiency that is unparalleled in the current literature. The module supports cross-page templates, cross-page argument passing, URL parameters, 404 page customisation, and other features, with a mere 120 lines of code under the hood (excluding blank lines and docstrings). It is recommended that the installation and subsequent usage of this module is undertaken in order to ascertain its full functionality.</p>
+<h1 align="center">FletNavigator V3.9.6 Documentation</h1>
+Minimalistic FletNavigator documentation. Yeah, just like the module itself.
 
-## Table of Contents
-- [Installation](#installation)
-- [Classes](#classes)
-  - [PageData](#pagedata)
-  - [VirtualFletNavigator](#virtualfletnavigator)
-  - [PublicFletNavigator](#publicfletnavigator)
-- [Core Features](#core-features)
-- [Aliases](#aliases)
-- [Disabling FletNavigator logger](#disabling-fletnavigator-logger)
+<h2>Public Generic Globals</h2>
 
-# Installation
-To install FletNavigator use this command line: `pip install flet_navigator`. That's it!
+- `FLET_NAVIGATOR_VERSION` (`str`, `'3.9.6'`) - FN Version.
+- `_DEFAULT_PAGE_404` (`PageDefinition`) - A page definition of 404 route. It's public but I don't really think you'll need this.
+- `ROUTE_404` (`str`, `ROUTE-404`) - A constant string representing the 404 route type. It's akin to a form of identification.
 
-# Classes
-FletNavigator classes: `PageData`, `VirtualFletNavigator`, `PublicFletNavigator`.
+<h2>Public Typehints/Aliases</h2>
 
-## PageData
-Represents data associated with a specific page in a navigation system.
+- `Arguments` (`tuple[Any, ...]`) - An alias for a page-transfering arguments.
+- `PageDefinition` (`Callable[[PageData], None]`) - An alias for a page definition.
+- `TemplateDefinition` (`Callable[[PageData, Arguments], Optional[Control]]`) - An alias for a template definition.
+- `RouteChangeCallback` (`Callable[[str], None]`) - An alias for a route change callback.
+- `Routes` (`dict[str, PageDefinition]`) - An alias for a routes map.
+- `RouteParameters` (`dict[str, Union[str, int, bool, None]]`) - An alias for a route parameters map.
 
-This class holds information about the current page, its associated navigator, 
-arguments and parameters passed from the previous page, and the page ID.
-It provides methods to navigate between routes, manage the navigation bar, 
-and more.
+<h2>Public Classes</h2>
 
-- **Attributes**:
-    - `page: Page`    
-        The current page instance.
-    - `navigator: PublicFletNavigator | VirtualFletNavigator`    
-        The navigator.
-    - `arguments: Arguments`    
-        Arguments passed from the previous page for context.
-    - `parameters: RouteParameters`    
-        URL parameters associated with the current route.
-    - `page_id: int`    
-        The unique identifier for this page.
+- `PageData` (Just a class that contains page data and some utility functions for navigation):
+  - Fields:
+  - `page` (`Page`, `None`) - The current page instance.
+  - `navigator` (`Union[PublicFletNavigator, VirtualFletNavigator]`, `None`) - The navigator.
+  - `arguments` (`Arguments`, `None`) - Arguments passed from the previous page for context.
+  - `parameters` (`RouteParameters`, `None`) - URL parameters associated with the current route.
+  - `page_id` (`tuple[int, str]`, `None`) - The unique identifier for this page.
+  - Methods:
+  - `current_route() -> str` - Get the navigator's current route state.
+  - `add(*controls: Control) -> None` - Add one or more controls to the current page.
+  - `navigate(route: str, args: Arguments=(), parameters: RouteParameters={}) -> None` - Navigate to a specific route. If the navigator is virtual, parameters are not used.
+  - `navigate_homepage(args: Arguments=(), parameters: RouteParameters={}) -> None` - Navigate to the homepage. If the navigator is virtual, parameters are not used.
+  - `navigate_back(args: Arguments=(), parameters: RouteParameters={}) -> None` - Navigate back to the previous route. If the navigator is virtual, parameters are not used.
+  - `set_navbar(navbar: Control) -> None` - Set the navigation bar for the current page.
+  - `delete_navbar() -> None` - Remove the navigation bar for the current page.
 
-- **Methods**:
-    - `__init__(page: Page, navigator: PublicFletNavigator | VirtualFletNavigator, arguments: Arguments, parameters: RouteParameters, page_id: int) -> None`    
-        Initialize a PageData instance.
-    - `current_route() -> str`    
-        Get the current route from the navigator.
-    - `add(*controls: Control) -> None`    
-        Add one or more controls to the current page.
-    - `navigate(route: str, args: Arguments=(), parameters: RouteParameters={}) -> None`    
-        Navigate to a specific route. If the navigator is virtual, parameters are not used.
-    - `navigate_homepage(args: Arguments=(), parameters: RouteParameters={}) -> None`    
-        Navigate to the homepage. If the navigator is virtual, parameters are not used.
-    - `set_navbar(navbar: Control) -> None`    
-        Set the navigation bar for the current page.
-    - `del_navbar() -> None`    
-        Remove the navigation bar for the current page.
-    - `__repr__() -> str`    
-        Represent the PageData instance as a string for debugging purposes.
+<h2>Utilities</h2>
 
-## VirtualFletNavigator
-Virtual navigator class.
+- `route(route: Union[str, PageDefinition]) -> Any`:
 
-Manages routing and navigation in a Flet application. It allows navigation between routes,
-setting a homepage, and rendering pages based on the current route. This class provides virtual navigation,
-where the route and page content are managed without public URL address.
+Link a route to the last initialized navigator.
 
-- **Attributes**:
-    - `route: str`    
-        The current active route.
-    - `routes: Routes`    
-        A map of all supported routes in the application.
-    - `homepage: str`    
-        The route that acts as the homepage.
-    - `navbars: dict[int, Control]`    
-        A dictionary mapping page IDs to their corresponding navigation bars.
-    - `route_change_callback: RouteChangeCallback`    
-        A callback function that is triggered when the route changes.
+This function registers the route and associates it with a given page definition.
+The only difference is the name. You can specify the name in the first argument.
+or this function will fetch the given function name automatically.
 
-- **Methods**:
-    - `__init__(routes: Routes={}, route_change_callback: RouteChangeCallback=None) -> None`    
-        Initialize the virtual navigator.
-    - `navigate(route: str, page: Page, args: Arguments=()) -> None`    
-        Navigate to a specific route in the application.
-    - `navigate_homepage(page: Page, args: Arguments=()) -> None`    
-        Navigate to the homepage route.
-    - `set_homepage(homepage: str) -> None`    
-        Set a new homepage route.
-    - `render(page: Page, args: Arguments=()) -> None`    
-        Render the current route on the provided page. If the route is not found, a 404 error page is shown.
-    - `is_virtual() -> None`    
-        Check if the navigator is virtual or public.
+- `load_page(path: str, name: Optional[str]=None) -> PageDefinition`:
 
-```python
-from flet import app, Page, Text, TextButton
+Load a page definition from a specified module.
 
-from flet_navigator import VirtualFletNavigator, PageData, route
+Let me explain this technically: it replaces all the system path separators with a dot.
+After loading the module by its path, it loads the page definition function.
+The function name is determined by the path. If a name is specified, then it loads the specified name.
+Otherwise, it uses the last name in the path.
 
+Can throw `ModuleNotFoundError` and `AttributeError`.
 
-@route('/')
-def main(pg: PageData) -> None:
-    pg.add(Text('Hello World!'))
+- `template(template_definition: Union[str, TemplateDefinition], page_data: PageData, arguments: Arguments=()) -> Optional[Any]`:
 
-    pg.add(TextButton('Navigate to the second page!', on_click=lambda _: pg.navigate('second')))
+Render a template for the given page data and arguments.
 
-@route
-def second(pg: PageData) -> None:
-    pg.add(Text('I am the second page!'))
+If `template_definition` is a string, then it's a global template.
+The function will try to find the template you defined earlier via `@global_template` in the list of global templates.
+If `template_definition` is a callable, then it's a local template.
+The template will be rendered by calling the template function.
 
-    pg.add(TextButton('Return to the homepage!', on_click=lambda _: pg.navigate_homepage()))
+P.S I question the usefulness of local templates. Are they useful at all?
 
-app(lambda page: VirtualFletNavigator().render(page))
-```
+- `global_template(template_name: Optional[str]=None) -> Any`:
 
-## PublicFletNavigator
-Public navigator class.
+Register a global template to the last initialized navigator.
 
-This class handles routing and navigation in a Flet application, managing routes, 
-page rendering, and navigation between different pages. It supports navigating to 
-specific routes, setting a homepage, and handling route changes. Works with the public URL addresses.
-
-- **Attributes**:
-    - `page: Page`    
-        Page object representing the current page.
-    - `route: str`    
-        The current active route.
-    - `routes: Routes`    
-        A map of all supported routes in the application.
-    - `homepage: str`    
-        The homepage route.
-    - `navbars: dict[int, Control]`    
-        A dictionary mapping page IDs to their corresponding navigation bars.
-    - `route_change_callback: RouteChangeCallback`    
-        A callback function that is triggered when the route changes.
-
-- **Methods**:
-    - `__init__(page: Page, routes: Routes={}, route_change_callback: RouteChangeCallback=None) -> None`    
-        Initialize the public navigator.
-    - `navigate(route: str, page: Page, args: Arguments=(), parameters: RouteParameters={}) -> None`    
-        Navigate to a specific route in the application.
-    - `navigate_homepage(page: Page, args: Arguments=(), parameters: RouteParameters={}) -> None`    
-        Navigate to the homepage route.
-    - `render(page: Page, args: Arguments=(), route_parameters: RouteParameters={}) -> None`    
-        Render the current route on the provided page. If the route is not found, a 404 error page is shown.
-    - `set_homepage(homepage: str) -> None`    
-        Set a new homepage route.
-    - `is_virtual() -> None`    
-        Check if the navigator is virtual or public.
-    - `_nav_route_changed_callback(_) -> None`    
-        Internal callback triggered when the route changes.
-
-```python
-from flet import app, Text, TextButton
-
-from flet_navigator import PublicFletNavigator, PageData, route, ROUTE_404
-
-
-@route('/')
-def main(pg: PageData) -> None:
-    pg.add(Text('Hello World!'))
-
-    pg.add(TextButton('Navigate to the second page!', on_click=lambda _: pg.navigate('second', ('Hi!', ), {'msg':'Hello second page!'})))
-
-@route
-def second(pg: PageData) -> None:
-    pg.add(Text(f'I am the second page! URL parameters: {str(pg.parameters)}, arguments: {str(pg.arguments)}'))
-
-    pg.add(TextButton('Return to the homepage!', on_click=lambda _: pg.navigate_homepage()))
-
-@route(ROUTE_404)
-def route404(pg: PageData) -> None:
-    pg.add(Text('Are you sure this page exists?'))
-
-    pg.add(TextButton('Return to the homepage!', on_click=lambda _: pg.navigate_homepage()))
-
-app(lambda page: PublicFletNavigator(page).render(page))
-```
-
-# Core Features
-
-- `route(route: str | PageDefinition) -> Any`
-    Link a route to the last initialized navigator. Associates a route with a page definition or adds a page definition as a decorator for a specified route.
-
-```python
-@route
-def my_route(pg: PageData) -> None: # Now this route is available as 'my_route'.
-    ...
-
-@route('my_route_2')
-def func(pg: PageData) -> None: # Now this route is available as 'my_route_2'.
-    ...
-```
-
-- `load_page(path: str, name: str=None) -> PageDefinition`
-    Load a page definition from a specified module. Dynamically imports a module and retrieves a page definition.
-
-```python
-PublicFletNavigator(page, {'loaded_route': load_page('my_page')}).render(page)
-```
-
-`my_page.py`
-```python
-from flet_navigator import PageData
-
-def my_page(pg: PageData) -> None:
-    ...
-```
-
-- `template(template_definition: str | TemplateDefinition, page_data: PageData, *arguments: Arguments) -> Control?`
-    Render a template for the given page data and arguments. Supports retrieving a global template by name or using a callable template function.
-
-```python
-def my_local_template(pg: PageData, *args) -> None: # Also its possible to return the controls.
-    ...
-
-# Fetch/render a local template within your page.
-template(my_local_template, page_data)
-```
-
-- `global_template(template_name: str=None) -> Any`
-    Register a global template to the last initialized navigator. Associates a callable template with a name or uses the template function's name as the key.
-
-```python
-@global_template
-def my_template(pg: PageData, *args) -> None: # Template is registered as 'my_template'.
-    ...
-
-@global_template('my_template_2')
-def func(pg: PageData, *args) -> None: # Template is registered as 'my_template_2'.
-    ...
-
-# Fetch/render a local template within your page.
-template('my_template', page_data)
-template('my_template_2', page_data)
-```
-
-# Aliases
-
-- **Arguments**    
-    Alias for page-transferring arguments: `tuple[Any, ...]`.
-
-- **PageDefinition**    
-    Alias for page definition: `Callable[[PageData], None]`.
-
-- **TemplateDefinition**    
-    Alias for template definition: `Callable[[PageData, Arguments], Optional[Control]]`.
-
-- **RouteChangeCallback**    
-    Alias for route change callback: `Callable[[str], None]`.
-
-- **Routes**    
-    Alias for routes map: `dict[str, PageDefinition]`.
-
-- **RouteParameters**    
-    Alias for route parameters map: `dict[str, Union[str, int, bool, None]]`.
-
-# Disabling FletNavigator logger
-You can disable FletNavigator logger by setting `FN`'s logger `propagate` property to `False`.
-
-```python
-from logging import getLogger
-
-# Append this line after the navigator has been initialized.
-getLogger('FN').propagate = False
-```
-
-<hr><p align="center"><b>FletNavigator V3.8.6</b></p>
+This function registers the template and associates it with a given template definition.
+The only difference is the name. You can specify the name in the first argument.
+or this function will fetch the given template function name automatically.
