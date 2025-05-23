@@ -1,4 +1,4 @@
-"""FletNavigator is a minimalistic, powerful, and extremely fast navigation management library designed for Flet applications. It simplifies the handling of routes and page transitions while delivering optimal performance. With its lightweight architecture, FletNavigator supports both virtual and public routing, enabling seamless navigation with or without public URLs. It allows dynamic page rendering, efficient management of URL parameters and arguments, and customizable route change callbacks. FletNavigator supports nested and parameterized routes, and provides built-in mechanisms for handling 404 errors. Its intuitive design and focus on speed make it an ideal choice for building responsive and robust Flet-based applications."""
+"""Super minimalistic module for navigation in Flet combining speed and simplicity."""
 
 from flet import Page, Control, Text, IconButton
 
@@ -19,118 +19,14 @@ _pre_def_routes: 'Routes' = {}
 _global_templates: dict[str, 'TemplateDefinition'] = {}
 
 
-_url_fn_space_chr: str = '<FN385S>'
+_url_fn_space_chr: str = '<FN396S>'
 
 
-FLET_NAVIGATOR_VERSION: str = '3.8.6'
+FLET_NAVIGATOR_VERSION: str = '3.9.6'
 """The version of the Flet Navigator."""
 
 
-ROUTE_404: str = 'ROUTE-404'
-"""A constant string representing the 404 route type.
-
-Used to specify a custom route for handling 404 errors (Page Not Found) in web applications. 
-This can be customized for routing or error handling purposes."""
-
-
-Arguments = tuple[Any, ...]
-"""Alias for page-transfering arguments."""
-
-
-class PageData:
-    """Represents data associated with a specific page in a navigation system.
-
-    This class holds information about the current page, its associated navigator, 
-    arguments and parameters passed from the previous page, and the page ID.
-    It provides methods to navigate between routes, manage the navigation bar, 
-    and more."""
-
-    page: Page = None
-    """The current page instance."""
-
-    navigator: Union['PublicFletNavigator', 'VirtualFletNavigator'] = None
-    """The navigator."""
-
-    arguments: Arguments = None
-    """Arguments passed from the previous page for context."""
-
-    parameters: 'RouteParameters' = None
-    """URL parameters associated with the current route."""
-
-    page_id: int = None
-    """The unique identifier for this page."""
-
-    def __init__(self, page: Page, navigator: Union['PublicFletNavigator', 'VirtualFletNavigator'], arguments: Arguments, parameters: 'RouteParameters', page_id: int) -> None:
-        """Initialize a PageData instance."""
-        self.page = page
-
-        self.navigator = navigator
-
-        self.arguments = arguments
-
-        self.parameters = parameters
-
-        self.page_id = page_id
-
-    def current_route(self) -> str:
-        """Get the current route from the navigator."""
-        return self.navigator.route
-
-    def add(self, *controls: Control) -> None:
-        """Add one or more controls to the current page."""
-        self.page.add(*controls)
-
-    def navigate(self, route: str, args: Arguments=(), parameters: 'RouteParameters'={}) -> None:
-        """Navigate to a specific route. If the navigator is virtual, parameters are not used."""
-        if self.navigator.virtual:
-            self.navigator.navigate(route, self.page, args)
-
-        else:
-            self.navigator.navigate(route, self.page, args, parameters)
-
-    def navigate_homepage(self, args: Arguments=(), parameters: 'RouteParameters'={}) -> None:
-        """Navigate to the homepage. If the navigator is virtual, parameters are not used."""
-        if self.navigator.virtual:
-            self.navigator.navigate_homepage(self.page, args)
-
-        else:
-            self.navigator.navigate_homepage(self.page, args, parameters)
-
-    def set_navbar(self, navbar: Control) -> None:
-        """Set the navigation bar for the current page."""
-        self.page.appbar = navbar
-
-        self.navigator.navbars[self.page_id] = navbar
-
-    def del_navbar(self) -> None:
-        """Remove the navigation bar for the current page."""
-        self.page.appbar = None
-
-        if self.page_id in self.navigator.navbars:
-            self.navigator.navbars.pop(self.page_id)
-
-    def __repr__(self) -> str:
-        """Represent the PageData instance as a string for debugging purposes."""
-        return f'{self.previous_page} -> {self.navigator.route} [{"NO-ARGUMENTS" if not self.arguments else self.arguments}, {"NO-PARAMETERS" if len(self.parameters) <= 0 else self.parameters}] ({self.page_id}) (NAVIGATOR-OBJECT {self.navigator})'
-
-
-PageDefinition = Callable[[PageData], None]
-"""Alias for page definition."""
-
-TemplateDefinition = Callable[[PageData, Arguments], Optional[Control]]
-"""Alias for template definition."""
-
-RouteChangeCallback = Callable[[str], None]
-"""Alias for route change callback."""
-
-Routes = dict[str, PageDefinition]
-"""Alias for routes map."""
-
-RouteParameters = dict[str, Union[str, int, bool, None]]
-"""Alias for route parameters map."""
-
-
-_DEFAULT_PAGE_404: PageDefinition = lambda pg: (
+_DEFAULT_PAGE_404: 'PageDefinition' = lambda pg: (
     globals().__setitem__('_FNDP404_PRE_H_A', pg.page.horizontal_alignment),
     globals().__setitem__('_FNDP404_PRE_V_A', pg.page.vertical_alignment),
 
@@ -159,9 +55,118 @@ _DEFAULT_PAGE_404: PageDefinition = lambda pg: (
 """Default route-404 handler."""
 
 
+ROUTE_404: str = 'ROUTE-404'
+"""A constant string representing the 404 route type.
+
+Used to specify a custom route for handling 404 errors (Page Not Found) in web applications. 
+This can be customized for routing or error handling purposes."""
+
+Arguments = tuple[Any, ...]
+"""Alias for page-transfering arguments."""
+
+PageDefinition = Callable[['PageData'], None]
+"""Alias for page definition."""
+
+TemplateDefinition = Callable[['PageData', Arguments], Optional[Control]]
+"""Alias for template definition."""
+
+RouteChangeCallback = Callable[[str], None]
+"""Alias for route change callback."""
+
+Routes = dict[str, PageDefinition]
+"""Alias for routes map."""
+
+RouteParameters = dict[str, Union[str, int, bool, None]]
+"""Alias for route parameters map."""
+
+
+class PageData:
+    """Represents data associated with a specific page in a navigation system.
+
+    This class holds information about the current page, its associated navigator, 
+    arguments and parameters passed from the previous page, and the page ID.
+    It provides methods to navigate between routes, manage the navigation bar, 
+    and more."""
+
+    page: Page = None
+    """The current page instance."""
+
+    navigator: Union['PublicFletNavigator', 'VirtualFletNavigator'] = None
+    """The navigator."""
+
+    arguments: Arguments = None
+    """Arguments passed from the previous page for context."""
+
+    parameters: 'RouteParameters' = None
+    """URL parameters associated with the current route."""
+
+    page_id: tuple[int, str] = None
+    """The unique identifier for this page."""
+
+    def __init__(self, page: Page, navigator: Union['PublicFletNavigator', 'VirtualFletNavigator'], arguments: Arguments, parameters: 'RouteParameters', page_id: tuple[int, str]) -> None:
+        """Initialize a PageData instance."""
+        self.page = page
+
+        self.navigator = navigator
+
+        self.arguments = arguments
+
+        self.parameters = parameters
+
+        self.page_id = page_id
+
+    def current_route(self) -> str:
+        """Get the current route from the navigator."""
+        return self.navigator.route
+
+    def add(self, *controls: Control) -> None:
+        """Add one or more controls to the current page."""
+        self.page.add(*controls)
+
+    def navigate(self, route: str, args: Arguments=(), parameters: RouteParameters={}) -> None:
+        """Navigate to a specific route. If the navigator is virtual, parameters are not used."""
+        if self.navigator.is_virtual():
+            self.navigator.navigate(route, self.page, args)
+
+        else:
+            self.navigator.navigate(route, self.page, args, parameters)
+
+    def navigate_homepage(self, args: Arguments=(), parameters: RouteParameters={}) -> None:
+        """Navigate to the homepage. If the navigator is virtual, parameters are not used."""
+        if self.navigator.is_virtual():
+            self.navigator.navigate_homepage(self.page, args)
+
+        else:
+            self.navigator.navigate_homepage(self.page, args, parameters)
+
+    def navigate_back(self, args: Arguments=(), parameters: RouteParameters={}) -> None:
+        """Navigate back to the previous route. If the navigator is virtual, parameters are not used."""
+        if self.navigator.is_virtual():
+            self.navigator.navigate_back(self.page, args)
+
+        else:
+            self.navigator.navigate_back(self.page, args, parameters)
+
+    def set_navbar(self, navbar: Control) -> None:
+        """Set the navigation bar for the current page."""
+        self.page.appbar = navbar
+
+        self.navigator.navbars[self.page_id] = navbar
+
+    def delete_navbar(self) -> None:
+        """Remove the navigation bar for the current page."""
+        self.page.appbar = None
+
+        if self.page_id in self.navigator.navbars:
+            self.navigator.navbars.pop(self.page_id)
+
+    def __repr__(self) -> str:
+        """Represent the PageData instance as a string for debugging purposes."""
+        return f'{self.previous_page} -> {self.navigator.route} [{"NO-ARGUMENTS" if not self.arguments else self.arguments}, {"NO-PARAMETERS" if len(self.parameters) <= 0 else self.parameters}] ({self.page_id}) (NAVIGATOR-OBJECT {self.navigator})'
+
 class AbstractFletNavigator:
     @staticmethod
-    def init_nav(nav: Union['VirtualFletNavigator', 'PublicFletNavigator'], /, page: Page=None, routes: Routes={}, route_change_callback: RouteChangeCallback=None) -> None:
+    def init_nav(nav: Union['VirtualFletNavigator', 'PublicFletNavigator'], page: Page=None, routes: Routes={}, route_change_callback: RouteChangeCallback=None) -> None:
         basicConfig(format=f'%(name)s %(levelname)s: %(message)s')
 
         nav._logger = getLogger(f'FN')
@@ -203,12 +208,17 @@ class AbstractFletNavigator:
         for route in _pre_def_routes:
             nav.routes[route] = _pre_def_routes[route]
 
+        nav._returning = False
+
     @staticmethod
-    def navigate(nav: Union['VirtualFletNavigator', 'PublicFletNavigator'], /, route: str, page: Page, args: Arguments=(), parameters: RouteParameters={}) -> None:
+    def navigate(nav: Union['VirtualFletNavigator', 'PublicFletNavigator'], route: str, page: Page, args: Arguments=(), parameters: RouteParameters={}) -> None:
         if nav.is_virtual() and '?' in route:
             route = route.split('?')[0]
 
             nav._logger.error("The VirtualFletNavigator does not support URL parameters. Use page arguments instead, or switch to the PublicFletNavigator for full URL parameters support.")
+
+        if not nav._returning:
+            nav.previous_routes.append(nav.route)
 
         nav.route = route
 
@@ -221,11 +231,26 @@ class AbstractFletNavigator:
             nav.render(page, args)
 
     @staticmethod
-    def set_homepage(nav: Union['VirtualFletNavigator', 'PublicFletNavigator'], /, homepage: str) -> None:
+    def navigate_homepage(nav: Union['VirtualFletNavigator', 'PublicFletNavigator'], page: Page, args: Arguments=(), parameters: RouteParameters={}) -> None:
+        AbstractFletNavigator.navigate(nav, nav.homepage, page, args, parameters)
+
+    @staticmethod
+    def set_homepage(nav: Union['VirtualFletNavigator', 'PublicFletNavigator'], homepage: str) -> None:
         nav.homepage = homepage
 
     @staticmethod
-    def render(nav: Union['VirtualFletNavigator', 'PublicFletNavigator'], /, page: Page, args: Arguments=(), route_parameters: RouteParameters={}) -> None:
+    def navigate_back(nav: Union['VirtualFletNavigator', 'PublicFletNavigator'], page: Page, args: Arguments=(), parameters: RouteParameters={}) -> None:
+        if len(nav.previous_routes) > 0:
+            nav._returning = True
+
+            AbstractFletNavigator.navigate(nav, nav.previous_routes[-1], page, args, parameters)
+
+            nav._returning = False
+
+            nav.previous_routes.pop()
+
+    @staticmethod
+    def render(nav: Union['VirtualFletNavigator', 'PublicFletNavigator'], page: Page, args: Arguments=(), route_parameters: RouteParameters={}) -> None:
         if nav.route not in nav.routes:
             page.clean()
 
@@ -257,6 +282,10 @@ class AbstractFletNavigator:
                 nav.route_change_callback(nav.route)
 
     @staticmethod
+    def is_virtual(nav: Union['VirtualFletNavigator', 'PublicFletNavigator']) -> bool:
+        return getattr(nav, 'virtual', None)
+
+    @staticmethod
     def fparams(route: str, **_parameters: dict) -> str:
         return f'{route}?{"&".join(f"{key}={value}" for key, value in _parameters.items())}' if len(_parameters) > 0 else route
 
@@ -274,6 +303,9 @@ class VirtualFletNavigator:
     routes: Routes = {}
     """A map of all supported routes in the application."""
 
+    previous_routes: list[str] = []
+    """A list of all previously visited routes."""
+
     homepage: str = '/'
     """The route that acts as the homepage."""
 
@@ -285,7 +317,7 @@ class VirtualFletNavigator:
 
     def __init__(self, routes: Routes={}, route_change_callback: RouteChangeCallback=None) -> None:
         """Initialize the virtual navigator."""
-        AbstractFletNavigator.init_nav(self, routes=routes, route_change_callback=route_change_callback)
+        AbstractFletNavigator.init_nav(self, routes, route_change_callback)
 
     def navigate(self, route: str, page: Page, args: Arguments=()) -> None:
         """Navigate to a specific route in the application."""
@@ -293,19 +325,23 @@ class VirtualFletNavigator:
 
     def navigate_homepage(self, page: Page, args: Arguments=()) -> None:
         """Navigate to the homepage route."""
-        self.navigate(self.homepage, page, args)
+        AbstractFletNavigator.navigate_homepage(self, page, args)
 
     def set_homepage(self, homepage: str) -> None:
         """Set a new homepage route."""
         AbstractFletNavigator.set_homepage(self, homepage)
 
+    def navigate_back(self, page: Page, args: Arguments=(), parameters: RouteParameters={}) -> None:
+        """Navigate back to the previous route."""
+        AbstractFletNavigator.navigate_back(self, page, args, parameters)
+
     def render(self, page: Page, args: Arguments=()) -> None:
         """Render the current route on the provided page. If the route is not found, a 404 error page is shown."""
         AbstractFletNavigator.render(self, page, args)
 
-    def is_virtual(self) -> None:
+    def is_virtual(self) -> bool:
         """Check if the navigator is virtual or public."""
-        return getattr(self, 'virtual', None)
+        return AbstractFletNavigator.is_virtual(self)
 
 
 class PublicFletNavigator:
@@ -323,6 +359,9 @@ class PublicFletNavigator:
 
     routes: Routes = {}
     """A map of all supported routes in the application."""
+
+    previous_routes: list[str] = []
+    """A list of all previously visited routes."""
 
     homepage: str = '/'
     """The homepage route."""
@@ -345,19 +384,23 @@ class PublicFletNavigator:
 
     def navigate_homepage(self, page: Page, args: Arguments=(), parameters: RouteParameters={}) -> None:
         """Navigate to the homepage route."""
-        self.navigate(self.homepage, page, args, parameters)
-
-    def render(self, page: Page, args: Arguments=(), route_parameters: RouteParameters={}) -> None:
-        """Render the current route on the provided page. If the route is not found, a 404 error page is shown."""
-        AbstractFletNavigator.render(self, page, args, route_parameters)
+        AbstractFletNavigator.navigate_homepage(self, page, args, parameters)
 
     def set_homepage(self, homepage: str) -> None:
         """Set a new homepage route."""
         AbstractFletNavigator.set_homepage(self, homepage)
 
-    def is_virtual(self) -> None:
+    def navigate_back(self, page: Page, args: Arguments=(), parameters: RouteParameters={}) -> None:
+        """Navigate back to the previous route."""
+        AbstractFletNavigator.navigate_back(self, page, args, parameters)
+
+    def render(self, page: Page, args: Arguments=(), route_parameters: RouteParameters={}) -> None:
+        """Render the current route on the provided page. If the route is not found, a 404 error page is shown."""
+        AbstractFletNavigator.render(self, page, args, route_parameters)
+
+    def is_virtual(self) -> bool:
         """Check if the navigator is virtual or public."""
-        return getattr(self, 'virtual', None)
+        return AbstractFletNavigator.is_virtual(self)
 
     def fn_route_change_handler_(self, _) -> None:
         route: str = self.page.route.replace(' ', _url_fn_space_chr).replace('%20', _url_fn_space_chr).replace('+', _url_fn_space_chr)
