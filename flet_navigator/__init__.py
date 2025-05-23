@@ -63,22 +63,22 @@ This can be customized for routing or error handling purposes."""
 
 
 Arguments = tuple[Any, ...]
-"""Alias for a page-transfering arguments."""
+"""An alias for a page-transfering arguments."""
 
 PageDefinition = Callable[['PageData'], None]
-"""Alias for a page definition."""
+"""An alias for a page definition."""
 
 TemplateDefinition = Callable[['PageData', Arguments], Optional[Control]]
-"""Alias for a template definition."""
+"""An alias for a template definition."""
 
 RouteChangeCallback = Callable[[str], None]
-"""Alias for a route change callback."""
+"""An alias for a route change callback."""
 
 Routes = dict[str, PageDefinition]
-"""Alias for a routes map."""
+"""An alias for a routes map."""
 
 RouteParameters = dict[str, Union[str, int, bool, None]]
-"""Alias for a route parameters map."""
+"""An alias for a route parameters map."""
 
 
 class PageData:
