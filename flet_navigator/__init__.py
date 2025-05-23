@@ -293,7 +293,7 @@ class VirtualFletNavigator:
     """The current active route."""
 
     routes: Routes = {}
-    """A map of all supported routes in the application."""
+    """A map of all registered routes in the application."""
 
     previous_routes: list[str] = []
     """A list of all previously visited routes."""
@@ -346,7 +346,7 @@ class PublicFletNavigator:
     """The current active route."""
 
     routes: Routes = {}
-    """A map of all supported routes in the application."""
+    """A map of all registered routes in the application."""
 
     previous_routes: list[str] = []
     """A list of all previously visited routes."""
