@@ -299,7 +299,7 @@ class VirtualFletNavigator:
     """A list of all previously visited routes."""
 
     homepage: str = '/'
-    """The route that acts as the homepage."""
+    """The homepage route."""
 
     navbars: dict[int, Control] = {}
     """A dictionary mapping page IDs to their corresponding navigation bars."""
