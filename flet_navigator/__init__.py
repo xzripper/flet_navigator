@@ -88,7 +88,7 @@ class PageData:
     """The current page instance."""
 
     navigator: Union['PublicFletNavigator', 'VirtualFletNavigator'] = None
-    """The navigator."""
+    """The navigator that created this PageData instance."""
 
     arguments: Arguments = None
     """Arguments passed from the previous page for context."""
