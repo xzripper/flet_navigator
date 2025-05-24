@@ -114,6 +114,9 @@ The only difference is the name. You can specify the name in the first argument.
 or this function will fetch the given template function name automatically.
 
 <h2>Ultimate showcase</h2>
+Example that shows almost all features FletNavigator has.
+
+Note: All redirects to `/` page with parameters will result in error (non-fatal log message) because index/main route doesn't support parameters.
 
 `main.py`
 
