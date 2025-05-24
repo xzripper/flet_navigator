@@ -125,7 +125,7 @@ Note: All redirects to `/` page with parameters will result in error (non-fatal 
 from flet import (
     Text, TextField, FilledButton,
     Icon, IconButton, AppBar,
-    Icons, Colors, app
+    Icons, Colors, app, WEB_BROWSER
 )
 
 # Flet Navigator
@@ -276,12 +276,12 @@ app(lambda page: PublicFletNavigator(
     {'third': load_page('third', 'abc')} # Old way to specify routes; 
                                          # but still required for the external routes
     ).render(page) # Render the page.
-)
+, view=WEB_BROWSER)
 
 # Equivalent to:
 """
 def main(page: Page) -> None:
-    PublicFletNavigator(page, {'third': load_page('third', 'abc')}).render(page)
+    PublicFletNavigator(page, {'third': load_page('third', 'abc')}, view=WEB_BROWSER).render(page)
 
 app(main)
 """
