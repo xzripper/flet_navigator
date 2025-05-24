@@ -10,7 +10,7 @@ from urllib.parse import parse_qs, unquote, urlsplit
 
 from typing import Any, Callable, Optional, Union
 
-from flet import Control, IconButton, Page, Text
+from flet import Control, IconButton, Page, Text, AdaptiveControl
 
 from flet.core.constrained_control import ConstrainedControl
 
@@ -64,13 +64,13 @@ Used to specify a custom route for handling 404 errors (Page Not Found) in appli
 This can be customized for routing or error handling purposes."""
 
 
-Arguments = tuple[Any, ...]
+Arguments = Union[Any, tuple[Any, ...]]
 """An alias for a page-transfering arguments."""
 
 PageDefinition = Callable[['PageData'], None]
 """An alias for a page definition."""
 
-TemplateDefinition = Callable[['PageData', Arguments], Optional[Control]]
+TemplateDefinition = Callable[['PageData', Arguments], Any]
 """An alias for a template definition."""
 
 RouteChangeCallback = Callable[[str], None]
@@ -145,7 +145,7 @@ class PageData:
         else:
             self.navigator.navigate_back(self.page, args, parameters)
 
-    def set_navbar(self, navbar: ConstrainedControl) -> None:
+    def set_navbar(self, navbar: Union[ConstrainedControl, AdaptiveControl]) -> None:
         """Set the navigation bar for the current page."""
         self.page.appbar = navbar
 
@@ -161,6 +161,7 @@ class PageData:
     def __repr__(self) -> str:
         """Represent the PageData instance as a string for debugging purposes."""
         return f'{self.previous_page} -> {self.navigator.route} [{"NO-ARGUMENTS" if not self.arguments else self.arguments}, {"NO-PARAMETERS" if len(self.parameters) <= 0 else self.parameters}] ({self.page_id}) (NAVIGATOR-OBJECT {self.navigator})'
+
 
 class AbstractFletNavigator:
     @staticmethod
@@ -213,7 +214,7 @@ class AbstractFletNavigator:
         if nav.is_virtual() and '?' in route:
             route = route.split('?')[0]
 
-            nav._logger.error("The VirtualFletNavigator does not support URL parameters. Use page arguments instead, or switch to the PublicFletNavigator for full URL parameters support.")
+            nav._logger.error('The VirtualFletNavigator does not support URL parameters. Use page arguments instead, or switch to the PublicFletNavigator for full URL parameters support.')
 
         if not nav._returning:
             nav.previous_routes.append(nav.route)
@@ -223,7 +224,13 @@ class AbstractFletNavigator:
         if not nav.is_virtual():
             nav._nav_temp_args = args
 
-            page.go(AbstractFletNavigator.fparams(route, **parameters))
+            if route == '/' and parameters:
+                page.go(route)
+
+                nav._logger.error('Index/Main route does not support parameters; parameters transfering skipped.')
+
+            else:
+                page.go(AbstractFletNavigator.fparams(route, **parameters))
 
         else:
             nav.render(page, args)
@@ -303,7 +310,7 @@ class VirtualFletNavigator:
     homepage: str = '/'
     """The homepage route."""
 
-    navbars: dict[int, ConstrainedControl] = {}
+    navbars: dict[int, Union[ConstrainedControl, AdaptiveControl]] = {}
     """A dictionary mapping page IDs to their corresponding navigation bars."""
 
     route_change_callback: RouteChangeCallback = None
@@ -356,7 +363,7 @@ class PublicFletNavigator:
     homepage: str = '/'
     """The homepage route."""
 
-    navbars: dict[int, ConstrainedControl] = {}
+    navbars: dict[int, Union[ConstrainedControl, AdaptiveControl]] = {}
     """A dictionary mapping page IDs to their corresponding navigation bars."""
 
     route_change_callback: RouteChangeCallback = None
