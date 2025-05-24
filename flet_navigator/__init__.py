@@ -65,7 +65,7 @@ This can be customized for routing or error handling purposes."""
 
 
 Arguments = Union[Any, tuple[Any, ...]]
-"""An alias for a page-transfering arguments."""
+"""An alias for a page-transferring arguments."""
 
 PageDefinition = Callable[['PageData'], None]
 """An alias for a page definition."""
@@ -227,7 +227,7 @@ class AbstractFletNavigator:
             if route == '/' and parameters:
                 page.go(route)
 
-                nav._logger.error('Index/Main route does not support parameters; parameters transfering skipped.')
+                nav._logger.error('Index/Main route does not support parameters; parameters transferring skipped.')
 
             else:
                 page.go(AbstractFletNavigator.fparams(route, **parameters))
