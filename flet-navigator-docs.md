@@ -1,4 +1,4 @@
-<h1 align="center">FletNavigator V3.9.6 Documentation</h1>
+<h1 align="center">FletNavigator V3.9.7 Documentation</h1>
 Minimalistic FletNavigator documentation. Yeah, just like the module itself.<br><br>
 
 <a href="#ultimate-showcase">Ultimate showcase.</a>
@@ -9,7 +9,7 @@ Minimalistic FletNavigator documentation. Yeah, just like the module itself.<br>
 
 <h2>Public Generic Globals</h2>
 
-- `FLET_NAVIGATOR_VERSION` (`str`, `'3.9.6'`) - FN Version.
+- `FLET_NAVIGATOR_VERSION` (`str`, `'3.9.7'`) - FN Version.
 - `_DEFAULT_PAGE_404` (`PageDefinition`) - A page definition of 404 route. It's public but I don't really think you'll need this.
 - `ROUTE_404` (`str`, `ROUTE-404`) - A constant string representing the 404 route type. It's akin to a form of identification.
 
@@ -132,11 +132,11 @@ from flet import (
 from flet_navigator import (
     PublicFletNavigator, PageData, Arguments, # Main classes & arguments alias
     route, template, global_template, load_page, # Utility functions
-    FLET_NAVIGATOR_VERSION # Version
+    ROUTE_404, FLET_NAVIGATOR_VERSION # Constants
 )
 
 # Try-Except evaluation utility function
-def EVALUATE(string: str) -> object:
+def evaluate(string: str) -> object:
     try:
         return eval(string)
     except Exception as exc:
@@ -177,7 +177,7 @@ def main(pg: PageData) -> None:
             'Go back',
             on_click=lambda _: # 'lambda _:' Flet requires function to spare first argument for event
             pg.navigate_back( # Navigate back
-                EVALUATE(args.value), # Arguments
+                evaluate(args.value), # Arguments
                 {'value': value.value} # Parameters
             )
     ))
@@ -188,7 +188,7 @@ def main(pg: PageData) -> None:
             on_click=lambda _: # 'lambda _:' Flet requires function to spare first argument for event
             pg.navigate( # Navigate to a specific route
                 'second', # Route
-                EVALUATE(args.value), # Arguments
+                evaluate(args.value), # Arguments
                 {'value': value.value} # Parameters
             )
     ))
@@ -200,7 +200,7 @@ def main(pg: PageData) -> None:
             on_click=lambda _:
             pg.navigate(
                 'third',
-                EVALUATE(args.value),
+                evaluate(args.value),
                 {'value': value.value}
             )
     ))
@@ -243,19 +243,19 @@ def second(pg: PageData) -> None:
     pg.add(
         FilledButton(
             'Go back',
-            on_click=lambda _: pg.navigate_back(EVALUATE(args.value), {'value': value.value})
+            on_click=lambda _: pg.navigate_back(evaluate(args.value), {'value': value.value})
     ))
 
     pg.add(
         FilledButton(
             'Return to the homepage',
-            on_click=lambda _: pg.navigate_homepage(EVALUATE(args.value), {'value': value.value})
+            on_click=lambda _: pg.navigate_homepage(evaluate(args.value), {'value': value.value})
     ))
 
     pg.add(
         FilledButton(
             'Go to the third page',
-            on_click=lambda _: pg.navigate('third', EVALUATE(args.value), {'value': value.value})
+            on_click=lambda _: pg.navigate('third', evaluate(args.value), {'value': value.value})
     ))
 
     template('homepage_setter', pg, ('second'))
@@ -268,6 +268,12 @@ def second(pg: PageData) -> None:
         title=Text('Second page'),
         actions=[IconButton(Icons.CLOUD)]
     ))
+
+# --- Route 404 Handling ---
+# @route(ROUTE_404)
+# def invalid_route(pg: PageData) -> None:
+#    pg.add(Text("Invalid route..."))
+#    pg.add(FilledButton("Go back", on_click=lambda _: pg.navigate_back()))
 
 # Run the application.
 app(lambda page: PublicFletNavigator(
@@ -295,7 +301,7 @@ from flet import Text, TextField, FilledButton, AppBar, Colors, Icons, Icon, Ico
 from flet_navigator import PageData, template
 
 
-def EVALUATE(string: str) -> object:
+def evaluate(string: str) -> object:
     try:
         return eval(string)
     except Exception as exc:
@@ -319,7 +325,7 @@ def abc(pg: PageData) -> None:
             'Go back',
             on_click=lambda _:
             pg.navigate_back(
-                EVALUATE(args.value),
+                evaluate(args.value),
                 {'value': value.value}
             )
     ))
@@ -329,7 +335,7 @@ def abc(pg: PageData) -> None:
             'Return to the homepage',
             on_click=lambda _:
             pg.navigate_homepage(
-                EVALUATE(args.value),
+                evaluate(args.value),
                 {'value': value.value}
             )
     ))
@@ -340,7 +346,7 @@ def abc(pg: PageData) -> None:
             on_click=lambda _:
             pg.navigate(
                 'second',
-                EVALUATE(args.value),
+                evaluate(args.value),
                 {'value': value.value}
             )
     ))
