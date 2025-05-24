@@ -3,7 +3,7 @@
 <img src="https://img.shields.io/badge/Python%203.9%2B-black?style=for-the-badge&logo=python&logoColor=white" width=150>
 <img src="https://img.shields.io/badge/Awesome%20Flet-black?style=for-the-badge&logo=styledcomponents&logoColor=white&logoSize=auto" width=185></p>
 
-<p align="center"><b>FletNavigator is a thorough navigation/routing module for the Flet framework that combines speed, simplicity, and efficiency. Features like cross-page arguments, URL parameters, templates, external routes, utilities & decorators, and more! Install it and try it for yourself!</b></p>
+<p align="center"><b>FletNavigator is a thorough navigation/routing module for the Flet framework that combines speed, simplicity, and efficiency. Features like cross-page arguments, URL parameters, templates, external routes, utilities & decorators, and more are present in FletNavigator! Install it and try it for yourself!</b></p>
 
 <p align="center"><b>Copy&Paste into your terminal: <code>pip install <a href="https://pypi.org/project/flet-navigator/">flet_navigator</a></code></b></p>
 
