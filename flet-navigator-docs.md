@@ -1,4 +1,4 @@
-<h1 align="center">FletNavigator V3.9.7 Documentation</h1>
+<h1 align="center">FletNavigator V3.9.8 Documentation</h1>
 Minimalistic FletNavigator documentation. Yeah, just like the module itself.<br><br>
 
 <a href="#ultimate-showcase">Ultimate showcase.</a>
@@ -9,9 +9,9 @@ Minimalistic FletNavigator documentation. Yeah, just like the module itself.<br>
 
 <h2>Public Generic Globals</h2>
 
-- `FLET_NAVIGATOR_VERSION` (`str`, `'3.9.7'`) - FN Version.
+- `FLET_NAVIGATOR_VERSION` (`str`, `'3.9.8'`) - FN Version.
 - `_DEFAULT_PAGE_404` (`PageDefinition`) - A page definition of 404 route. It's public but I don't really think you'll need this.
-- `ROUTE_404` (`str`, `ROUTE-404`) - A constant string representing the 404 route type. It's akin to a form of identification.
+- `ROUTE_404` (`str`, `'ROUTE-404'`) - A constant string representing the 404 route type. It's akin to a form of identification.
 
 <h2>Public Typehints/Aliases</h2>
 
@@ -37,6 +37,7 @@ Minimalistic FletNavigator documentation. Yeah, just like the module itself.<br>
   - `navigate(route: str, args: Arguments=(), parameters: RouteParameters={}) -> None` - Navigate to a specific route. If the navigator is virtual, parameters are not used.
   - `navigate_homepage(args: Arguments=(), parameters: RouteParameters={}) -> None` - Navigate to the homepage. If the navigator is virtual, parameters are not used.
   - `navigate_back(args: Arguments=(), parameters: RouteParameters={}) -> None` - Navigate back to the previous route. If the navigator is virtual, parameters are not used.
+  - `set_homepage(homepage: str) -> None` - Update navigator's homepage address.
   - `set_navbar(navbar: Union[ConstrainedControl, AdaptiveControl]) -> None` - Set the navigation bar for the current page.
   - `delete_navbar() -> None` - Remove the navigation bar for the current page.
 
@@ -52,7 +53,7 @@ Minimalistic FletNavigator documentation. Yeah, just like the module itself.<br>
     - `navigate(route: str, page: Page, args: Arguments = ()) -> None` - Navigate to a specific route.
     - `navigate_homepage(page: Page, args: Arguments = ()) -> None` - Navigate to the homepage.
     - `set_homepage(homepage: str) -> None` - Set the homepage route.
-    - `navigate_back(page: Page, args: Arguments = (), parameters: RouteParameters = {}) -> None` - Navigate to the previous route.
+    - `navigate_back(page: Page, args: Arguments = ()) -> None` - Navigate to the previous route.
     - `render(page: Page, args: Arguments = ()) -> None` - Render the current route on the provided page. Must be called only once in the main function.
     - `is_virtual() -> bool` - Check if the navigator is virtual.
 
@@ -149,7 +150,7 @@ def homepage_setter(pg: PageData, args: Arguments) -> None:
 
     pg.add(FilledButton(
         'Submit new homepage',
-        on_click=lambda _: pg.navigator.set_homepage(hp.value)
+        on_click=lambda _: pg.set_homepage(hp.value)
     ))
 
 # --- Local Template Definition ---
