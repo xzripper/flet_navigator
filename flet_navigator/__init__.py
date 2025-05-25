@@ -1,4 +1,4 @@
-"""Super minimalistic module for navigation in Flet combining speed and simplicity."""
+"""A minimalist module for navigation in Flet that combines speed and simplicity."""
 
 from importlib import import_module
 
@@ -21,10 +21,10 @@ _pre_def_routes: 'Routes' = {}
 _global_templates: dict[str, 'TemplateDefinition'] = {}
 
 
-_url_fn_space_chr: str = '<FN396S>'
+_url_fn_space_chr: str = '<FN398S>'
 
 
-FLET_NAVIGATOR_VERSION: str = '3.9.6'
+FLET_NAVIGATOR_VERSION: str = '3.9.8'
 """The version of the Flet Navigator."""
 
 
@@ -37,7 +37,7 @@ _DEFAULT_PAGE_404: 'PageDefinition' = lambda pg: (
     setattr(pg.page, 'horizontal_alignment', 'center'),
     setattr(pg.page, 'vertical_alignment', 'center'),
 
-    pg.add(Text('Not Found', size=100, tooltip=f'No defined route: "{pg.current_route()}".')),
+    pg.add(Text('Not Found', size=100, tooltip=f'Invalid route: "{pg.current_route()}".')),
 
     pg.add(IconButton(
         'door_back_door_outlined', 'white', 60,
@@ -145,6 +145,10 @@ class PageData:
         else:
             self.navigator.navigate_back(self.page, args, parameters)
 
+    def set_homepage(self, homepage: str) -> None:
+        """Update navigator's homepage address."""
+        self.navigator.set_homepage(homepage)
+
     def set_navbar(self, navbar: Union[ConstrainedControl, AdaptiveControl]) -> None:
         """Set the navigation bar for the current page."""
         self.page.appbar = navbar
@@ -241,6 +245,11 @@ class AbstractFletNavigator:
 
     @staticmethod
     def set_homepage(nav: Union['VirtualFletNavigator', 'PublicFletNavigator'], homepage: str) -> None:
+        if homepage not in nav.routes:
+            nav._logger.error('Can\'t update homepage address: invalid route.')
+
+            return
+
         nav.homepage = homepage
 
     @staticmethod
@@ -328,13 +337,13 @@ class VirtualFletNavigator:
         """Navigate to the homepage route."""
         AbstractFletNavigator.navigate_homepage(self, page, args)
 
-    def set_homepage(self, homepage: str) -> None:
-        """Set a new homepage route."""
-        AbstractFletNavigator.set_homepage(self, homepage)
-
-    def navigate_back(self, page: Page, args: Arguments=(), parameters: RouteParameters={}) -> None:
+    def navigate_back(self, page: Page, args: Arguments=()) -> None:
         """Navigate back to the previous route."""
-        AbstractFletNavigator.navigate_back(self, page, args, parameters)
+        AbstractFletNavigator.navigate_back(self, page, args)
+
+    def set_homepage(self, homepage: str) -> None:
+        """Update navigator's homepage address."""
+        AbstractFletNavigator.set_homepage(self, homepage)
 
     def render(self, page: Page, args: Arguments=()) -> None:
         """Render the current route on the provided page. If the route is not found, a 404 error page is shown."""
@@ -383,13 +392,13 @@ class PublicFletNavigator:
         """Navigate to the homepage route."""
         AbstractFletNavigator.navigate_homepage(self, page, args, parameters)
 
-    def set_homepage(self, homepage: str) -> None:
-        """Set a new homepage route."""
-        AbstractFletNavigator.set_homepage(self, homepage)
-
     def navigate_back(self, page: Page, args: Arguments=(), parameters: RouteParameters={}) -> None:
         """Navigate back to the previous route."""
         AbstractFletNavigator.navigate_back(self, page, args, parameters)
+
+    def set_homepage(self, homepage: str) -> None:
+        """Update navigator's homepage address."""
+        AbstractFletNavigator.set_homepage(self, homepage)
 
     def render(self, page: Page, args: Arguments=(), route_parameters: RouteParameters={}) -> None:
         """Render the current route on the provided page. If the route is not found, a 404 error page is shown."""
