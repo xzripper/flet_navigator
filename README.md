@@ -1,5 +1,5 @@
 <h1 align="center"><b>⚡ FletNavigator V3</b></h1>
-<p align="center"><img src="https://img.shields.io/badge/V3.9.8-black?style=for-the-badge&logo=flutter&logoColor=white" width=100>
+<p align="center"><img src="https://img.shields.io/badge/V3.10.8-black?style=for-the-badge&logo=flutter&logoColor=white" width=100>
 <img src="https://img.shields.io/badge/Python%203.9%2B-black?style=for-the-badge&logo=python&logoColor=white" width=150>
 <img src="https://img.shields.io/badge/Awesome%20Flet-black?style=for-the-badge&logo=styledcomponents&logoColor=white&logoSize=auto" width=185></p>
 
@@ -14,25 +14,25 @@
 ```python
 from flet import app, Text, FilledButton
 
-from flet_navigator import PublicFletNavigator, PageData, route
+from flet_navigator import RouteContext, route, fn_process
 
 
 @route('/')
-def main(pg: PageData) -> None:
-    pg.add(Text('Hello World!'))
+def main(ctx: RouteContext) -> None:
+    ctx.add(Text('Hello World!'))
 
-    pg.add(FilledButton('Navigate to the second page!', on_click=lambda _: pg.navigate('second')))
+    ctx.add(FilledButton('Navigate to the second page!', on_click=lambda _: ctx.navigate('second')))
 
 @route
-def second(pg: PageData) -> None:
-    pg.add(Text('I am the second page!'))
+def second(ctx: RouteContext) -> None:
+    ctx.add(Text('I am the second page!'))
 
-    pg.add(FilledButton('Return to the homepage!', on_click=lambda _: pg.navigate_homepage()))
+    ctx.add(FilledButton('Return to the homepage!', on_click=lambda _: ctx.navigate_homepage()))
 
-app(lambda page: PublicFletNavigator(page).render(page))
+app(fn_process())
 ```
 </b>
 
-<p align="center"><a href="https://github.com/xzripper/flet_navigator/blob/main/flet-navigator-docs.md"><b>-> Check the documentation (+ examples) <-</b></a></p>
+<p align="center"><a href="https://xzripper.github.io/flet_navigator"><b>-> Check the official web documentation <-</b></a></p>
 
 <hr><p align="center"><b>FletNavigator 2025</b></p>
