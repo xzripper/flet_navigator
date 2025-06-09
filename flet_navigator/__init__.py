@@ -71,7 +71,7 @@ PageDefinition = Callable[['RouteData'], None]
 TemplateDefinition = Callable[['RouteData', Arguments], Any]
 """An alias for a template definition."""
 
-RouteChangeCallback = Callable[[Union['PublicFletNavigator', 'VirtualFletNavigator']], None]
+RouteChangeCallback = Callable[['RouteData'], None]
 """An alias for a route change callback."""
 
 Routes = dict[str, PageDefinition]
@@ -261,9 +261,6 @@ class AbstractFletNavigator:
 
     @staticmethod
     def process(nav: Union['VirtualFletNavigator', 'PublicFletNavigator'], page: Page, args: Arguments=(), route_parameters: RouteParameters={}) -> None:
-        if nav.route_change_callback:
-            nav.route_change_callback(nav)
-
         total_props = AbstractFletNavigator.find_all_specified_props(nav.routes, nav.props_map)
 
         if nav.route not in nav.routes:
@@ -279,6 +276,9 @@ class AbstractFletNavigator:
             else:
                 _DEFAULT_PAGE_404(r404_pg_inst)
 
+            if nav.route_change_callback:
+                nav.route_change_callback(r404_pg_inst)
+
             nav._logger.error(f'Route "{nav.route}" does not exist in the defined routes. Unable to process the page.')
 
         else:
@@ -288,9 +288,12 @@ class AbstractFletNavigator:
 
             AbstractFletNavigator.proc_page_props(page, nav.props_map.get(route_id), total_props)
 
-            nav.routes[nav.route](RouteData(page, nav, args, route_parameters, route_id))
+            nav.routes[nav.route](nxrd := RouteData(page, nav, args, route_parameters, route_id))
 
             page.update()
+
+            if nav.route_change_callback:
+                nav.route_change_callback(nxrd)
 
     @staticmethod
     def calc_route_id(routes: Routes, route: str) -> int:
