@@ -85,7 +85,7 @@ RouteProperties = dict[int, dict[str, Any]]
 
 
 class RouteContext:
-    """Just a class that contains route data and utility functions for navigation."""
+    """Route context class used for transferring data between routes and providing Navigator shortcuts."""
 
     page: Page = None
     """The current page instance."""
