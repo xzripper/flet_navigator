@@ -549,7 +549,7 @@ def global_template(template_name: Optional[str]=None) -> Any:
 def fn_process(start: str='/', virtual: bool=False, routes: Routes={}, route_change_callback: RouteChangeCallback=None, startup_args: Arguments=(), public_startup_parameters: RouteParameters={}) -> Callable[[Page], None]:
     """Shortcut to skip main function implementation and just calling `fn_process` in Flet's `app` function.
     
-    The best way to explain this function is to show the example:
+    The best way to explain this function is to show an example:
     ```
     @route('/')
     def main(rd: RouteContext) -> None:
