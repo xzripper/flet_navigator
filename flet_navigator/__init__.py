@@ -65,13 +65,13 @@ This can be customized for routing or error handling purposes."""
 Arguments = Union[Any, tuple[Any, ...]]
 """An alias for a page-transferring arguments."""
 
-PageDefinition = Callable[['RouteData'], None]
+PageDefinition = Callable[['RouteContext'], None]
 """An alias for a page definition."""
 
-TemplateDefinition = Callable[['RouteData', Arguments], Any]
+TemplateDefinition = Callable[['RouteContext', Arguments], Any]
 """An alias for a template definition."""
 
-RouteChangeCallback = Callable[['RouteData'], None]
+RouteChangeCallback = Callable[['RouteContext'], None]
 """An alias for a route change callback."""
 
 Routes = dict[str, PageDefinition]
@@ -84,14 +84,14 @@ RouteProperties = dict[int, dict[str, Any]]
 """An alias for a route properties map."""
 
 
-class RouteData:
-    """Just a class that contains route data and some utility functions for navigation."""
+class RouteContext:
+    """Just a class that contains route data and utility functions for navigation."""
 
     page: Page = None
     """The current page instance."""
 
     navigator: Union['PublicFletNavigator', 'VirtualFletNavigator'] = None
-    """The navigator that created this RouteData instance."""
+    """The navigator that created this RouteContext instance."""
 
     arguments: Arguments = None
     """Arguments passed from the previous page for context."""
@@ -103,7 +103,7 @@ class RouteData:
     """The unique identifier for this page."""
 
     def __init__(self, page: Page, navigator: Union['PublicFletNavigator', 'VirtualFletNavigator'], arguments: Arguments, parameters: 'RouteParameters', route_id: tuple[int, str]) -> None:
-        """Initialize a RouteData instance."""
+        """Initialize a RouteContext instance."""
         self.page = page
 
         self.navigator = navigator
@@ -159,7 +159,7 @@ class RouteData:
         return self.navigator.route
 
     def __repr__(self) -> str:
-        """Represent the RouteData instance as a string for debugging purposes."""
+        """Represent the RouteContext instance as a string for debugging purposes."""
         return f'{self.previous_page} -> {self.navigator.route} [{"NO-ARGUMENTS" if not self.arguments else self.arguments}, {"NO-PARAMETERS" if len(self.parameters) <= 0 else self.parameters}] ({self.route_id}) (NAVIGATOR-OBJECT {self.navigator})'
 
 
@@ -266,18 +266,18 @@ class AbstractFletNavigator:
         if nav.route not in nav.routes:
             page.clean()
 
-            r404_pg_inst = RouteData(page, nav, args, route_parameters, ROUTE_404)
+            r404_rctx_inst = RouteContext(page, nav, args, route_parameters, ROUTE_404)
 
             if ROUTE_404 in nav.routes:
                 AbstractFletNavigator.proc_page_props(page, nav.props_map.get(ROUTE_404), total_props)
 
-                nav.routes[ROUTE_404](r404_pg_inst)
+                nav.routes[ROUTE_404](r404_rctx_inst)
 
             else:
-                _DEFAULT_PAGE_404(r404_pg_inst)
+                _DEFAULT_PAGE_404(r404_rctx_inst)
 
             if nav.route_change_callback:
-                nav.route_change_callback(r404_pg_inst)
+                nav.route_change_callback(r404_rctx_inst)
 
             nav._logger.error(f'Route "{nav.route}" does not exist in the defined routes. Unable to process the page.')
 
@@ -288,12 +288,12 @@ class AbstractFletNavigator:
 
             AbstractFletNavigator.proc_page_props(page, nav.props_map.get(route_id), total_props)
 
-            nav.routes[nav.route](nxrd := RouteData(page, nav, args, route_parameters, route_id))
+            nav.routes[nav.route](nxrctx := RouteContext(page, nav, args, route_parameters, route_id))
 
             page.update()
 
             if nav.route_change_callback:
-                nav.route_change_callback(nxrd)
+                nav.route_change_callback(nxrctx)
 
     @staticmethod
     def calc_route_id(routes: Routes, route: str) -> int:
@@ -512,7 +512,7 @@ def load_page(path: str, name: Optional[str]=None) -> PageDefinition:
     return page
 
 
-def template(template_definition: Union[str, TemplateDefinition], route_data: RouteData, arguments: Arguments=()) -> Optional[Any]:
+def template(template_definition: Union[str, TemplateDefinition], route_data: RouteContext, arguments: Arguments=()) -> Optional[Any]:
     """Render a template for the given page data and arguments.
     
     If `template_definition` is a string, then it's a global template.
@@ -552,7 +552,7 @@ def fn_process(start: str='/', virtual: bool=False, routes: Routes={}, route_cha
     The best way to explain this function is to show the example:
     ```
     @route('/')
-    def main(rd: RouteData) -> None:
+    def main(rd: RouteContext) -> None:
         ...
 
     app(fn_process()) # Instead of: app(lambda page: PublicFletNavigator(page).process(page))
