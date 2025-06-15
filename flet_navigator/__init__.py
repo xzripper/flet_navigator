@@ -296,10 +296,6 @@ class AbstractFletNavigator:
                 nav.route_change_callback(nxrctx)
 
     @staticmethod
-    def calc_route_id(routes: Routes, route: str) -> int:
-        return list(routes.keys()).index(route) + 1
-
-    @staticmethod
     def find_all_specified_props(routes: Routes, props_map: RouteProperties) -> tuple[str]:
         total_props_specified = []
 
