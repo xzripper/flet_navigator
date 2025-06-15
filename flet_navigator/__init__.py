@@ -284,7 +284,7 @@ class AbstractFletNavigator:
         else:
             page.clean()
 
-            route_id = AbstractFletNavigator.calc_route_id(nav.routes, nav.route)
+            route_id = hash(nav.route)
 
             AbstractFletNavigator.proc_page_props(page, nav.props_map.get(route_id), total_props)
 
@@ -304,7 +304,7 @@ class AbstractFletNavigator:
         total_props_specified = []
 
         for route in routes:
-            route_id = AbstractFletNavigator.calc_route_id(routes, route)
+            route_id = hash(route)
 
             if route_id in props_map:
                 total_props_specified += list(props_map[route_id].keys())
