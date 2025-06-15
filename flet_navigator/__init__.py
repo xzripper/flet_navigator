@@ -10,7 +10,7 @@ from urllib.parse import parse_qs, unquote, urlsplit
 
 from typing import Any, Callable, Optional, Union
 
-from flet import Control, IconButton, Page, Text
+from flet import Control, Page, Text, IconButton
 
 
 _pre_def_routes: 'Routes' = {}
