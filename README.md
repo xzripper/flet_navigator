@@ -1,5 +1,5 @@
 <h1 align="center"><b>⚡ FletNavigator V3</b></h1>
-<p align="center"><img src="https://img.shields.io/badge/V3.10.8-black?style=for-the-badge&logo=flutter&logoColor=white" width=100>
+<p align="center"><img src="https://img.shields.io/badge/V3.10.9-black?style=for-the-badge&logo=flutter&logoColor=white" width=100>
 <img src="https://img.shields.io/badge/Python%203.9%2B-black?style=for-the-badge&logo=python&logoColor=white" width=150>
 <img src="https://img.shields.io/badge/Awesome%20Flet-black?style=for-the-badge&logo=styledcomponents&logoColor=white&logoSize=auto" width=185></p>
 
