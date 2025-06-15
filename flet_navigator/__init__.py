@@ -19,10 +19,10 @@ _pre_def_routes: 'Routes' = {}
 _global_templates: dict[str, 'TemplateDefinition'] = {}
 
 
-_url_fn_space_chr: str = '<FN3108S>'
+_url_fn_space_chr: str = '<FN3109S>'
 
 
-FLET_NAVIGATOR_VERSION: str = '3.10.8'
+FLET_NAVIGATOR_VERSION: str = '3.10.9'
 """The version of the Flet Navigator."""
 
 
@@ -199,7 +199,7 @@ class AbstractFletNavigator:
 
         for route in nav.routes:
             if route != '/' and route != ROUTE_404:
-                if not re_compile(nav._afn_vroute).match(route):
+                if not nav._afn_vroute.match(route):
                     routes_to_delete.append(route)
 
                     nav._logger.error(f'Invalid route name: "{route}". Route names must start with a letter or underscore and contain only alphanumeric characters or underscores.')
@@ -504,10 +504,10 @@ def load_page(path: str, name: Optional[str]=None) -> PageDefinition:
 
     try:
         page = getattr(import_module(path), _pd := path.split('.')[-1] if not name else name)
-    except ModuleNotFoundError:
-        raise TypeError(f'Failed to load page definition module: "{path}".')
-    except AttributeError:
-        raise ImportError(f'Failed to load page definition: "{_pd}".')
+    except ModuleNotFoundError as module_exc:
+        raise TypeError(f'Failed to load page definition module: "{path}".') from module_exc
+    except AttributeError as attr_error:
+        raise ImportError(f'Failed to load page definition: "{_pd}".') from attr_error
 
     return page
 
