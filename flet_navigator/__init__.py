@@ -19,10 +19,10 @@ _pre_def_routes: 'Routes' = {}
 _global_templates: dict[str, 'TemplateDefinition'] = {}
 
 
-_url_fn_space_chr: str = '<FN3109S>'
+_url_fn_space_chr: str = '<FN31010S>'
 
 
-FLET_NAVIGATOR_VERSION: str = '3.10.9'
+FLET_NAVIGATOR_VERSION: str = '3.10.10'
 """The version of the Flet Navigator."""
 
 
