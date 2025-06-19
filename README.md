@@ -33,6 +33,6 @@ app(fn_process())
 ```
 </b>
 
-<p align="center"><a href="https://xzripper.github.io/flet_navigator"><b>→ Read the official web documentation to learn more.</b></a></p>
+<p align="center"><a href="https://xzripper.github.io/flet_navigator"><b>→ Read the official web documentation to learn more.1</b></a></p>
 
 <hr><p align="center"><b>FletNavigator 2025</b></p>
