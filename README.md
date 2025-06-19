@@ -1,7 +1,7 @@
-<h1 align="center"><b>⚡ FletNavigator V3</b></h1>
-<p align="center"><img src="https://img.shields.io/badge/V3.10.10-black?style=for-the-badge&logo=flutter&logoColor=white" width=117>
-<img src="https://img.shields.io/badge/Python%203.9%2B-black?style=for-the-badge&logo=python&logoColor=white" width=150>
-<img src="https://img.shields.io/badge/Awesome%20Flet-black?style=for-the-badge&logo=styledcomponents&logoColor=white&logoSize=auto" width=185></p>
+<h1 align="center"><b>⚓ FletNavigator V3</b></h1>
+<p align="center"><img src="https://img.shields.io/badge/V3.10.10-880808?style=for-the-badge&logo=flutter&logoColor=white" width=117>
+<img src="https://img.shields.io/badge/Python%203.9%2B-880808?style=for-the-badge&logo=python&logoColor=white" width=150>
+<img src="https://img.shields.io/badge/Awesome%20Flet-880808?style=for-the-badge&logo=styledcomponents&logoColor=white&logoSize=auto" width=185></p>
 
 <p align="center"><b>FletNavigator is a thorough navigation/routing module for the Flet framework that combines speed, simplicity, and efficiency. Features like cross-page arguments, URL parameters, templates, external routes, utilities & decorators, and more are present in FletNavigator! Install it and try it for yourself!</b></p>
 
@@ -33,6 +33,6 @@ app(fn_process())
 ```
 </b>
 
-<p align="center"><a href="https://xzripper.github.io/flet_navigator"><b>-> Check the official web documentation <-</b></a></p>
+<p align="center"><a href="https://xzripper.github.io/flet_navigator"><b>→ Read the official web documentation to learn more.</b></a></p>
 
 <hr><p align="center"><b>FletNavigator 2025</b></p>
