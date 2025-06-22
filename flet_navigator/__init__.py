@@ -19,10 +19,10 @@ _pre_def_routes: 'Routes' = {}
 _global_templates: dict[str, 'TemplateDefinition'] = {}
 
 
-_url_fn_space_chr: str = '<FN31010S>'
+_url_fn_space_chr: str = '<FN31011S>'
 
 
-FLET_NAVIGATOR_VERSION: str = '3.10.10'
+FLET_NAVIGATOR_VERSION: str = '3.10.11'
 """The version of the Flet Navigator."""
 
 
@@ -309,11 +309,10 @@ class AbstractFletNavigator:
 
     @staticmethod
     def proc_page_props(page: Page, props: RouteProperties, total_props: tuple[str]) -> None:
-        if not props:
-            for prop in total_props:
-                setattr(page, prop, None)
+        for prop in total_props:
+            setattr(page, prop, None)
 
-        else:
+        if props:
             for prop, prop_value in props.items():
                 setattr(page, prop, prop_value)
 
